@@ -1,0 +1,11 @@
+{
+  "name": "proyecto_software",
+  "private": true,
+  "workspaces": [
+    "api-server"
+  ],
+  "scripts": {
+    "install:api": "bun install --cwd api-server",
+    "start:api": "bun --filter api-server start"
+  }
+}
