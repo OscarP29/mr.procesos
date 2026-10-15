@@ -15,36 +15,30 @@ bun --version
 
 ## Instalación
 
-Desde la carpeta raíz del repositorio, instala las dependencias del servidor:
+Desde la carpeta raíz del repositorio, entra en `api-server` e instala sus dependencias:
 
 ```bash
-bun run install:api
+cd api-server
+bun install
 ```
 
-Este comando ejecuta `bun install --cwd api-server` e instala las dependencias definidas en `api-server/package.json`.
+Las dependencias están definidas en `api-server/package.json`.
 
 ## Comandos disponibles
 
-Los comandos están definidos en el `package.json` de la raíz:
+El servidor define el siguiente comando en `api-server/package.json`:
 
-| Comando               | Descripción                                              |
-| --------------------- | -------------------------------------------------------- |
-| `bun run install:api` | Instala las dependencias de `api-server`.                |
-| `bun run start:api`   | Inicia el servidor API usando el workspace `api-server`. |
+| Comando         | Descripción             |
+| --------------- | ----------------------- |
+| `bun run start` | Inicia el servidor API. |
 
-Para iniciar el servidor, ejecuta desde la raíz:
-
-```bash
-bun run start:api
-```
-
-El servidor queda escuchando en el puerto `3000`. También puedes iniciarlo desde `api-server` con:
+Para iniciar el servidor, ejecuta desde `api-server` (la misma carpeta donde instalaste las dependencias):
 
 ```bash
 bun run start
 ```
 
-Este último comando ejecuta `bun run index.ts`. Actualmente no hay comandos de prueba o compilación definidos en los `package.json`.
+El comando ejecuta `bun run index.ts` y el servidor queda escuchando en el puerto `3000`. Actualmente no hay comandos de prueba o compilación definidos.
 
 ## Uso de la API
 

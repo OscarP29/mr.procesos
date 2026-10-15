@@ -7,7 +7,7 @@ export const ProcessService = {
     const processList = list.slice(0, limit).map((process) => ({
       pid: process.pid,
       nombre: process.name,
-      usuario: process.user || "Desconocido",
+      usuario: process.user,
       cpu: process.cpu,
       mem: process.mem,
       prioridad: "Unknown",
