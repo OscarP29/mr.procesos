@@ -1,55 +1,69 @@
 # Proyecto de software
 
-Este repositorio contiene un servidor API desarrollado con [Bun](https://bun.sh/) y [Elysia](https://elysiajs.com/). La API permite consultar procesos del sistema.
+Este repositorio contiene un servidor API desarrollado en Python con
+[FastAPI](https://fastapi.tiangolo.com/). La API muestra información de los
+procesos que se están ejecutando en el equipo.
 
 ## Requisitos
 
-- [Bun](https://bun.sh/) instalado.
-- Un sistema operativo compatible con la dependencia `systeminformation`.
+- Windows.
+- [Python](https://www.python.org/downloads/) 3.12 o posterior.
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) para gestionar
+  el entorno virtual y las dependencias.
 
-Comprueba que Bun está instalado ejecutando:
+El servidor utiliza `pywin32` para leer la descripción de los archivos de los
+procesos, por lo que actualmente está preparado para ejecutarse en Windows.
 
-```bash
-bun --version
+Comprueba que las herramientas están disponibles:
+
+```powershell
+python --version
+uv --version
 ```
 
 ## Instalación
 
-Desde la carpeta raíz del repositorio, entra en `api-server` e instala sus dependencias:
+Desde la raíz del repositorio, entra en el proyecto del servidor e instala sus
+dependencias:
 
-```bash
+```powershell
 cd api-server
-bun install
+uv sync
 ```
 
-Las dependencias están definidas en `api-server/package.json`.
+Las dependencias y los metadatos del proyecto están definidos en
+[`api-server/pyproject.toml`](api-server/pyproject.toml), y sus versiones
+resueltas se registran en `api-server/uv.lock`.
 
-## Comandos disponibles
+## Iniciar el servidor
 
-El servidor define el siguiente comando en `api-server/package.json`:
+Desde la carpeta `api-server`, ejecuta:
 
-| Comando         | Descripción             |
-| --------------- | ----------------------- |
-| `bun run start` | Inicia el servidor API. |
-
-Para iniciar el servidor, ejecuta desde `api-server` (la misma carpeta donde instalaste las dependencias):
-
-```bash
-bun run start
+```powershell
+uv run uvicorn api_server.main:app --reload
 ```
 
-El comando ejecuta `bun run index.ts` y el servidor queda escuchando en el puerto `3000`. Actualmente no hay comandos de prueba o compilación definidos.
+El servidor estará disponible en <http://127.0.0.1:8000>. La opción `--reload`
+reinicia el servidor cuando detecta cambios en el código; puedes quitarla para
+ejecutarlo sin recarga automática.
 
-## Uso de la API
+FastAPI genera documentación interactiva automáticamente:
 
-Con el servidor en ejecución, puedes consultar:
+- Swagger UI: <http://127.0.0.1:8000/docs>
+- ReDoc: <http://127.0.0.1:8000/redoc>
 
-- `GET http://localhost:3000/` — responde `Hello Mom!`.
-- `GET http://localhost:3000/process/` — devuelve los procesos del sistema.
-- `GET http://localhost:3000/process/?limit=20` — limita la respuesta a 20 procesos.
+## Endpoints
 
-El parámetro `limit` es opcional, debe ser un número entre `1` y `500`, y por defecto se consultan 10 procesos.
-La respuesta del endpoint de procesos tiene esta estructura:
+| Método | Ruta        | Descripción                               |
+| ------ | ----------- | ----------------------------------------- |
+| `GET`  | `/`         | Devuelve el mensaje `Hi Mom!`.            |
+| `GET`  | `/process/` | Devuelve información de procesos activos. |
+
+El endpoint de procesos acepta el parámetro opcional `limit`, que determina el
+número máximo de procesos a devolver. Su valor predeterminado es `10` y acepta
+valores entre `1` y `500`.
+
+La respuesta tiene esta estructura:
 
 ```json
 {
@@ -58,6 +72,7 @@ La respuesta del endpoint de procesos tiene esta estructura:
     {
       "pid": 123,
       "nombre": "nombre-del-proceso",
+      "descripcion": "Descripción del proceso",
       "usuario": "usuario",
       "cpu": 0,
       "mem": 0,
@@ -67,6 +82,8 @@ La respuesta del endpoint de procesos tiene esta estructura:
 }
 ```
 
-Los valores concretos dependen de los procesos activos en el equipo donde se ejecuta el servidor. `total` indica cuántos elementos se devuelven, no necesariamente el total de procesos del sistema.
-
-> **Nota:** la API expone nombres de procesos y usuarios del equipo. Úsala solo en un entorno de confianza y no la publiques en una red sin añadir autenticación y controles de acceso.
+Los valores dependen de los procesos activos en el equipo. `total` indica
+cuántos elementos se han incluido en `processList`, no necesariamente el total
+de procesos del sistema. La descripción se obtiene de los metadatos del archivo
+cuando están disponibles; en caso contrario, se genera una descripción
+predeterminada.

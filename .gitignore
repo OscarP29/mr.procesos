@@ -1,35 +1,64 @@
-# dependencies (bun install)
-node_modules
+# =========================
+# Python
+# =========================
 
-# output
-out
-dist
-*.tgz
+# Entornos virtuales
+.venv/
+venv/
+env/
 
-# code coverage
-coverage
-*.lcov
+# Caché de Python
+__pycache__/
+*.py[cod]
 
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+# Archivos compilados
+*.egg-info/
+dist/
+build/
 
-# dotenv environment variable files
+# Herramientas de desarrollo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Variables de entorno
+# =========================
+
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env.*
+!.env.example
 
-# caches
-.eslintcache
-.cache
-*.tsbuildinfo
+# =========================
+# Editores
+# =========================
 
-# IntelliJ based IDEs
-.idea
-.env
+.vscode/
+.idea/
 
-# Finder (MacOS) folder config
+# =========================
+# Sistema operativo
+# =========================
+
 .DS_Store
+Thumbs.db
+Desktop.ini
+
+# =========================
+# Logs
+# =========================
+
+*.log
+
+
+# =========================
+# Node.js / Bun
+# =========================
+
+node_modules/
+.next/
+out/
+coverage/
+.turbo/
