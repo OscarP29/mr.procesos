@@ -24,8 +24,10 @@ export default defineConfig(
       'react-refresh': eslintPluginReactRefresh
     },
     rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      'linebreak-style': 'off',
       ...eslintPluginReactHooks.configs.recommended.rules,
-      ...eslintPluginReactRefresh.configs.vite.rules
+      ...eslintPluginReactRefresh.configs.vite.rules,
     }
   },
   eslintConfigPrettier

@@ -5,9 +5,8 @@ Este repositorio contiene dos proyectos:
 - **`api-server`**: API desarrollada con Python y FastAPI para consultar
   información de los procesos que se están ejecutando en el equipo.
 - **`desktop-app`**: aplicación de escritorio desarrollada con Electron, React
-  y TypeScript. Actualmente es una base inicial con las dependencias y la
-  estructura principal configuradas; todavía no está conectada a la API ni
-  implementa la interfaz funcional del producto.
+  y TypeScript. Incluye un prototipo de interfaz para consultar procesos; todavía
+  no está conectado a la API.
 
 ## Estructura
 
@@ -100,17 +99,29 @@ El frontend de escritorio está construido con:
   [electron-vite](https://electron-vite.org/) para la aplicación y su flujo de
   desarrollo.
 - [React](https://react.dev/) y TypeScript para la interfaz.
-- [Tailwind CSS](https://tailwindcss.com/) para estilos.
+- [HeroUI](https://www.heroui.com/) (`@heroui/react` y `@heroui/styles`) para
+  los componentes de interfaz.
+- [Tailwind CSS](https://tailwindcss.com/) para personalizar los componentes
+  con clases de utilidad.
 - [lucide-react](https://lucide.dev/) para iconos.
 
-La aplicación incluye los procesos principales de Electron (`main`, `preload` y
-`renderer`) y una pantalla de ejemplo. Las dependencias actuales son las bases
-del proyecto; la integración con la API, las pantallas del producto y sus
-flujos todavía están pendientes.
+HeroUI proporciona componentes React reutilizables y accesibles —por ejemplo,
+pestañas, campos de entrada, selectores, botones, tooltips y modales— que se
+pueden adaptar al diseño de la aplicación. Sus estilos base se cargan desde
+`@heroui/styles` en `global.css`; Tailwind CSS se usa junto con ellos para
+ajustar distribución, espaciado y apariencia mediante clases.
 
-#### Vista actual
+La aplicación incluye los procesos principales de Electron (`main`, `preload`
+y `renderer`), navegación por pestañas y un prototipo de búsqueda de procesos.
+La interfaz aún no consulta la API.
 
-![Captura de la apariencia actual de la aplicación de escritorio](desktop-app/src/renderer/src/assets/image.png)
+#### Avance actual
+
+![Avance actual de la aplicación de escritorio](desktop-app/src/renderer/src/assets/image-2.png)
+
+#### Diseño anterior
+
+![Diseño anterior de la aplicación de escritorio](desktop-app/src/renderer/src/assets/image-1.png)
 
 ### Requisitos
 
