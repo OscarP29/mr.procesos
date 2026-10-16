@@ -1,1 +1,8 @@
 desktop-app/** text eol=lf
+# Imágenes como archivos binarios
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
