@@ -114,12 +114,12 @@ flujos todavía están pendientes.
 
 ### Requisitos
 
-- [Node.js](https://nodejs.org/) compatible con las versiones instaladas de
-  Electron y Vite.
 - [Bun](https://bun.sh/) para instalar las dependencias usando el archivo
   `bun.lock`.
 
-Comprueba que están disponibles:
+Electron incluye su propio runtime de Node.js, así que no hace falta instalar
+Node.js por separado para ejecutar los comandos documentados aquí. Comprueba que
+Bun está disponible:
 
 ```powershell
 bun --version
