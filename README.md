@@ -77,7 +77,7 @@ La respuesta tiene esta estructura:
       "descripcion": "Descripción del proceso",
       "usuario": "usuario",
       "cpu": 0,
-      "mem": 0,
+      "memoria_mb": 0,
       "prioridad": "Unknown"
     }
   ]
