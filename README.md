@@ -4,6 +4,7 @@ Este repositorio contiene dos proyectos:
 
 - **`api-server`**: API desarrollada con Python y FastAPI que consulta procesos
   activos y devuelve datos como PID, nombre, descripción, usuario, CPU y memoria.
+  Persiste los catálogos de procesos en SQLite mediante SQLAlchemy.
 - **`desktop-app`**: aplicación de escritorio desarrollada con Electron, React
   y TypeScript. Incluye vistas para procesos y una simulación visual de procesos.
   La interfaz todavía no está conectada a la API; utiliza datos de ejemplo.
@@ -72,12 +73,12 @@ La respuesta tiene esta estructura:
   "processList": [
     {
       "pid": 123,
-      "nombre": "nombre-del-proceso",
-      "descripcion": "Descripción del proceso",
-      "usuario": "usuario",
+      "name": "process-name",
+      "description": "Process description",
+      "user": "user",
       "cpu": 0,
-      "memoria_mb": 0,
-      "prioridad": "Unknown"
+      "memory_mb": 0,
+      "preemption": 1
     }
   ]
 }
@@ -87,7 +88,78 @@ Los valores dependen de los procesos activos en el equipo. `total` indica
 cuántos elementos se han incluido en `processList`, no necesariamente el total
 de procesos del sistema. La descripción se obtiene de los metadatos del archivo
 cuando están disponibles; en caso contrario, se genera una descripción
-predeterminada.
+predeterminada. `preemption` sigue la convención `0 = expulsivo` y
+`1 = no expulsivo`, y se calcula a partir de la cuenta propietaria del proceso:
+si el usuario contiene `system` (por ejemplo `NT AUTHORITY\SYSTEM`) el proceso es
+del sistema y se marca como `1`; en cualquier otro caso se marca como `0`.
+
+### Persistencia (ORM y base de datos)
+
+La persistencia usa [SQLAlchemy](https://www.sqlalchemy.org/) 2.0 sobre un
+archivo SQLite local. No hay servidor de base de datos: el archivo se crea solo
+en el primer arranque y queda en `api-server/data/processes.db`, ruta que está
+en `.gitignore` porque es un dato generado, no código.
+
+El esquema se crea automáticamente con `create_all` al iniciar el servidor (en el
+`lifespan` de FastAPI), sin necesidad de migraciones manuales.
+
+#### Estructura del paquete de datos
+
+```text
+api-server/src/api_server/models/
+├── database.py        engine, SessionLocal, get_db, init_db
+├── catalog_model.py   Catalog (tabla catalogs) y el enum Preemption
+├── process_model.py   Process (tabla processes)
+└── api_models.py      modelos de entrada/salida HTTP (valida el query param limit)
+```
+
+#### Esquema
+
+```text
+catalogs
+┌────────────────┬────────────────────┐
+│ id             │ name               │      processes
+│ INTEGER PK AI  │ VARCHAR(100) NOT   │      ┌──────────────┬─────────────┬────────┬────────────┬───────────────┬──────────┬──────────┬────────────┐
+│                │ NULL               │      │ id           │ catalog_id  │ pid    │ name        │ user         │ description │ preemption │ cpu        │ memory_mb  │
+│                │ UNIQUE + INDEX     │ 1:N  │ INTEGER PK AI│ INTEGER FK  │ INTEGER│ VARCHAR(120)│ VARCHAR(120) │ TEXT        │ INTEGER     │ FLOAT      │ FLOAT      │
+│                │                    │◄─────│              │ (INDEX)     │ NOT    │ NOT NULL    │ NOT NULL     │ NOT NULL    │ NOT NULL    │ NOT NULL   │ NULL       │
+│                │                    │      │              │ ON DELETE   │ NULL   │             │               │             │ CHECK IN   │            │            │
+│                │                    │      │              │ CASCADE     │        │             │               │             │ (0, 1)     │            │            │
+├────────────────┼────────────────────┤      └──────────────┴─────────────┴────────┴────────────┴───────────────┴──────────┴──────────┴────────────┘
+│ created_at     │                    │
+│ DATETIME       │                    │
+└────────────────┴────────────────────┘
+```
+
+| Tabla | Columna | Tipo | Descripción |
+| --- | --- | --- | --- |
+| `catalogs` | `id` | `INTEGER` PK AI | Identificador interno del catálogo. |
+| | `name` | `VARCHAR(100)` UNIQUE | Nombre de la categoría que define el usuario. No se repiten. |
+| | `created_at` | `DATETIME` | Fecha de creación. |
+| `processes` | `id` | `INTEGER` PK AI | Identificador interno de la fila. No es el PID. |
+| | `catalog_id` | `INTEGER` FK | Catálogo al que pertenece. `ON DELETE CASCADE`: al borrar el catálogo se borran sus procesos. |
+| | `pid` | `INTEGER` | PID real del proceso en el sistema operativo. |
+| | `name` | `VARCHAR(120)` | Nombre del proceso. |
+| | `user` | `VARCHAR(120)` | Cuenta propietaria del proceso. |
+| | `description` | `TEXT` | Descripción del proceso. Su longitud en caracteres se usa para calcular la ráfaga (`TR = TH * caracteres`). |
+| | `preemption` | `INTEGER` | `0` expulsivo, `1` no expulsivo. `CHECK (preemption IN (0, 1))`. |
+| | `cpu` | `FLOAT` | Porcentaje de CPU en el momento del catálogo. |
+| | `memory_mb` | `FLOAT` | Memoria en megabytes. |
+
+#### Decisiones de diseño
+
+- **Relación 1:N con cascada.** `Catalog.processes` usa
+  `cascade="all, delete-orphan"` y `passive_deletes=True`: el borrado en cascada
+  lo ejecuta SQLite, sin cargar los hijos en memoria.
+- **Claves foráneas activadas explícitamente.** SQLite las tiene apagadas por
+  defecto, así que `database.py` ejecuta `PRAGMA foreign_keys=ON` en cada
+  conexión. Sin eso, `ON DELETE CASCADE` no se aplica.
+- **`preemption` es `INTEGER` con `CHECK`, no un `Enum` de SQLAlchemy.** El
+  `Enum` de SQLAlchemy calcula el largo del `VARCHAR` a partir de los valores del
+  enum y revienta con valores enteros (`TypeError: object of type 'int' has no
+  len()`). El `CHECK` además documenta la convención en la propia base de datos.
+- **Una sesión por petición.** `get_db()` abre y cierra una sesión por request
+  mediante `Depends`, para no compartir estado entre peticiones concurrentes.
 
 ## Aplicación de escritorio (`desktop-app`)
 
