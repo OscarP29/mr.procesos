@@ -49,6 +49,10 @@ automática. Las dependencias están definidas en
 [`api-server/pyproject.toml`](api-server/pyproject.toml) y sus versiones
 resueltas en `api-server/uv.lock`.
 
+Ejecuta la consola **como administrador** para que la API pueda leer también los
+procesos propiedad de otras cuentas, como los servicios del sistema. Sin
+privilegios, `GET /process/` los descarta.
+
 FastAPI genera documentación interactiva automáticamente:
 
 - Swagger UI: <http://127.0.0.1:8000/docs>
@@ -74,8 +78,8 @@ La respuesta tiene esta estructura:
     {
       "pid": 123,
       "name": "process-name",
-      "description": "Process description",
-      "user": "user",
+      "description": "Descripción del proceso",
+      "user": "usuario",
       "cpu": 0,
       "memory_mb": 0,
       "preemption": 1
@@ -90,8 +94,8 @@ de procesos del sistema. La descripción se obtiene de los metadatos del archivo
 cuando están disponibles; en caso contrario, se genera una descripción
 predeterminada. `preemption` sigue la convención `0 = expulsivo` y
 `1 = no expulsivo`, y se calcula a partir de la cuenta propietaria del proceso:
-si el usuario contiene `system` (por ejemplo `NT AUTHORITY\SYSTEM`) el proceso es
-del sistema y se marca como `1`; en cualquier otro caso se marca como `0`.
+si el usuario contiene `system` (por ejemplo `NT AUTHORITY\SYSTEM`) el proceso
+es del sistema y se marca como `1`; en cualquier otro caso se marca como `0`.
 
 ### Persistencia (ORM y base de datos)
 
@@ -115,51 +119,20 @@ api-server/src/api_server/models/
 
 #### Esquema
 
-```text
-catalogs
-┌────────────────┬────────────────────┐
-│ id             │ name               │      processes
-│ INTEGER PK AI  │ VARCHAR(100) NOT   │      ┌──────────────┬─────────────┬────────┬────────────┬───────────────┬──────────┬──────────┬────────────┐
-│                │ NULL               │      │ id           │ catalog_id  │ pid    │ name        │ user         │ description │ preemption │ cpu        │ memory_mb  │
-│                │ UNIQUE + INDEX     │ 1:N  │ INTEGER PK AI│ INTEGER FK  │ INTEGER│ VARCHAR(120)│ VARCHAR(120) │ TEXT        │ INTEGER     │ FLOAT      │ FLOAT      │
-│                │                    │◄─────│              │ (INDEX)     │ NOT    │ NOT NULL    │ NOT NULL     │ NOT NULL    │ NOT NULL    │ NOT NULL   │ NULL       │
-│                │                    │      │              │ ON DELETE   │ NULL   │             │               │             │ CHECK IN   │            │            │
-│                │                    │      │              │ CASCADE     │        │             │               │             │ (0, 1)     │            │            │
-├────────────────┼────────────────────┤      └──────────────┴─────────────┴────────┴────────────┴───────────────┴──────────┴──────────┴────────────┘
-│ created_at     │                    │
-│ DATETIME       │                    │
-└────────────────┴────────────────────┘
-```
-
 | Tabla | Columna | Tipo | Descripción |
 | --- | --- | --- | --- |
 | `catalogs` | `id` | `INTEGER` PK AI | Identificador interno del catálogo. |
-| | `name` | `VARCHAR(100)` UNIQUE | Nombre de la categoría que define el usuario. No se repiten. |
+| | `name` | `VARCHAR(100)` UNIQUE | Nombre que define el usuario. No se repiten. |
 | | `created_at` | `DATETIME` | Fecha de creación. |
 | `processes` | `id` | `INTEGER` PK AI | Identificador interno de la fila. No es el PID. |
 | | `catalog_id` | `INTEGER` FK | Catálogo al que pertenece. `ON DELETE CASCADE`: al borrar el catálogo se borran sus procesos. |
 | | `pid` | `INTEGER` | PID real del proceso en el sistema operativo. |
 | | `name` | `VARCHAR(120)` | Nombre del proceso. |
 | | `user` | `VARCHAR(120)` | Cuenta propietaria del proceso. |
-| | `description` | `TEXT` | Descripción del proceso. Su longitud en caracteres se usa para calcular la ráfaga (`TR = TH * caracteres`). |
-| | `preemption` | `INTEGER` | `0` expulsivo, `1` no expulsivo. `CHECK (preemption IN (0, 1))`. |
+| | `description` | `TEXT` | Descripción del proceso. |
+| | `preemption` | `INTEGER` | `0` expulsivo, `1` no expulsivo. |
 | | `cpu` | `FLOAT` | Porcentaje de CPU en el momento del catálogo. |
 | | `memory_mb` | `FLOAT` | Memoria en megabytes. |
-
-#### Decisiones de diseño
-
-- **Relación 1:N con cascada.** `Catalog.processes` usa
-  `cascade="all, delete-orphan"` y `passive_deletes=True`: el borrado en cascada
-  lo ejecuta SQLite, sin cargar los hijos en memoria.
-- **Claves foráneas activadas explícitamente.** SQLite las tiene apagadas por
-  defecto, así que `database.py` ejecuta `PRAGMA foreign_keys=ON` en cada
-  conexión. Sin eso, `ON DELETE CASCADE` no se aplica.
-- **`preemption` es `INTEGER` con `CHECK`, no un `Enum` de SQLAlchemy.** El
-  `Enum` de SQLAlchemy calcula el largo del `VARCHAR` a partir de los valores del
-  enum y revienta con valores enteros (`TypeError: object of type 'int' has no
-  len()`). El `CHECK` además documenta la convención en la propia base de datos.
-- **Una sesión por petición.** `get_db()` abre y cierra una sesión por request
-  mediante `Depends`, para no compartir estado entre peticiones concurrentes.
 
 ## Aplicación de escritorio (`desktop-app`)
 
