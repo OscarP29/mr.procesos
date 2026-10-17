@@ -4,7 +4,7 @@ import win32api
 class FileService:
     @staticmethod
     def get_description(path: str | None, process_name: str) -> str:
-        default_description = f"Este proceso es {process_name}."
+        default_description = f"This process is {process_name}."
 
         if not path:
             return default_description

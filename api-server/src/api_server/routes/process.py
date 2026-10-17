@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from api_server.models.process_models import ProcessLimit
+from api_server.models.api_models import ProcessLimit
 from api_server.services.process_service import ProcessService 
 
 

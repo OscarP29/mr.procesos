@@ -54,6 +54,15 @@ Desktop.ini
 
 
 # =========================
+# Base de datos
+# =========================
+
+# SQLite (se regenera con init_db al arrancar la API)
+*.db
+*.db-journal
+data/
+
+# =========================
 # Node.js / Bun
 # =========================
 
