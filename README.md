@@ -2,11 +2,11 @@
 
 Este repositorio contiene dos proyectos:
 
-- **`api-server`**: API desarrollada con Python y FastAPI para consultar
-  información de los procesos que se están ejecutando en el equipo.
+- **`api-server`**: API desarrollada con Python y FastAPI que consulta procesos
+  activos y devuelve datos como PID, nombre, descripción, usuario, CPU y memoria.
 - **`desktop-app`**: aplicación de escritorio desarrollada con Electron, React
-  y TypeScript. Incluye un prototipo de interfaz para consultar procesos; todavía
-  no está conectado a la API.
+  y TypeScript. Incluye vistas para procesos y una simulación visual de procesos.
+  La interfaz todavía no está conectada a la API; utiliza datos de ejemplo.
 
 ## Estructura
 
@@ -105,23 +105,41 @@ El frontend de escritorio está construido con:
   con clases de utilidad.
 - [lucide-react](https://lucide.dev/) para iconos.
 
-HeroUI proporciona componentes React reutilizables y accesibles —por ejemplo,
-pestañas, campos de entrada, selectores, botones, tooltips y modales— que se
-pueden adaptar al diseño de la aplicación. Sus estilos base se cargan desde
-`@heroui/styles` en `global.css`; Tailwind CSS se usa junto con ellos para
-ajustar distribución, espaciado y apariencia mediante clases.
+HeroUI proporciona los componentes de interfaz —pestañas, campos de entrada,
+selectores, botones, tooltips, tablas y modales—. Sus estilos base se cargan
+desde `@heroui/styles` en `global.css`, y Tailwind CSS se utiliza para adaptar
+la distribución y apariencia.
 
 La aplicación incluye los procesos principales de Electron (`main`, `preload`
-y `renderer`), navegación por pestañas y un prototipo de búsqueda de procesos.
-La interfaz aún no consulta la API.
+y `renderer`) y tres secciones de navegación:
 
-#### Avance actual
+- **Procesos**: vista tabular con PID, nombre, descripción, usuario, CPU,
+  memoria y prioridad; incluye controles de búsqueda y guardado como parte del
+  prototipo.
+- **Simulación**: esquema visual con procesos en las colas de listos,
+  ejecución, espera y terminados, además de controles de reproducción.
+- **Configuración**: sección inicial pendiente de implementar.
 
-![Avance actual de la aplicación de escritorio](desktop-app/src/renderer/src/assets/image-2.png)
+Las vistas de procesos y simulación son actualmente prototipos visuales: la
+tabla y el esquema usan datos de ejemplo, los controles aún no ejecutan
+acciones y el frontend no consume la API.
 
-#### Diseño anterior
+#### Vista de procesos
+
+![Vista de procesos de la aplicación de escritorio](desktop-app/src/renderer/src/assets/image-3.png)
+
+#### Vista de simulación
+
+![Vista de simulación de procesos](desktop-app/src/renderer/src/assets/image-4.png)
+
+#### Historial de diseños
+
+Estas capturas corresponden a versiones anteriores de la interfaz y se
+conservan como referencia de su evolución.
 
 ![Diseño anterior de la aplicación de escritorio](desktop-app/src/renderer/src/assets/image-1.png)
+
+![Diseño previo de la aplicación de escritorio](desktop-app/src/renderer/src/assets/image-2.png)
 
 ### Requisitos
 

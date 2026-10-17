@@ -1,12 +1,18 @@
-import { Button, Modal } from '@heroui/react'
+import { Button, Input, Label, Modal, Tooltip } from '@heroui/react'
 import { Save } from 'lucide-react'
 
-export default function ModalSave() {
+export default function ModalSave({ disable }: { disable: boolean }) {
+  console.log(disable)
   return (
     <Modal>
-      <Button variant="outline" isIconOnly aria-label="save">
-        <Save />
-      </Button>
+      <Tooltip delay={0}>
+        <Button isIconOnly aria-label="save">
+          <Save />
+        </Button>
+        <Tooltip.Content showArrow placement="left">
+          <p>Guardar Procesos</p>
+        </Tooltip.Content>
+      </Tooltip>
       <Modal.Backdrop>
         <Modal.Container>
           <Modal.Dialog className="sm:max-w-90">
@@ -15,17 +21,20 @@ export default function ModalSave() {
               <Modal.Icon className="bg-default text-foreground">
                 <Save className="size-5" />
               </Modal.Icon>
-              <Modal.Heading>Welcome to HeroUI</Modal.Heading>
+              <Modal.Heading>Guardar Procesos</Modal.Heading>
             </Modal.Header>
             <Modal.Body>
-              <p>
-                A beautiful, fast, and modern React UI library for building accessible and
-                customizable web applications with ease.
-              </p>
+              <p>Guarda tus procesos para acceder a ellos en el similador</p>
+              <div className="my-4">
+                <Label className="mb-2" isRequired>
+                  Nombre
+                </Label>
+                <Input type="tel" placeholder="Mis Procesos" fullWidth />
+              </div>
             </Modal.Body>
             <Modal.Footer>
               <Button className="w-full" slot="close">
-                Continue
+                Guardar
               </Button>
             </Modal.Footer>
           </Modal.Dialog>

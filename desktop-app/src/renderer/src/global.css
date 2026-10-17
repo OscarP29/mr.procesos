@@ -46,6 +46,16 @@
   /* Font Family */
   /* Make sure to load Figtree font in your app */
   --font-sans: var(--font-figtree);
+
+  --process-user: #2563eb;
+  --process-system: #7e22ce;
+  --process-local-service: #15803d;
+  --process-network-service: #b45309;
+
+  --process-cpu: #c2410c;
+  --process-ram: #0e7490;
+
+   --pattern-color: oklch(43.29% 0.1351 312.08 / 15%);
 }
 
 .dark,
@@ -83,4 +93,35 @@
   --surface-tertiary-foreground: oklch(99.11% 0.0015 312.08);
   --warning: oklch(82.03% 0.1392 83.33);
   --warning-foreground: oklch(21.03% 0.0059 83.33);
+
+  --process-user: #60a5fa;
+  --process-system: #c084fc;
+  --process-local-service: #4ade80;
+  --process-network-service: #fbbf24;
+
+  --process-cpu: #fb923c;
+  --process-ram: #22d3ee;
+
+  --pattern-color: oklch(70% 0.1351 312.08 / 20%);
+
+}
+
+@theme inline {
+  --color-process-user: var(--process-user);
+  --color-process-system: var(--process-system);
+  --color-process-local-service: var(--process-local-service);
+  --color-process-network-service: var(--process-network-service);
+
+  --color-process-cpu: var(--process-cpu);
+  --color-process-ram: var(--process-ram);
+}
+
+
+
+.bg-dots {
+  background-image: radial-gradient(
+    var(--pattern-color) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
 }
