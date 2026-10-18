@@ -26,3 +26,14 @@ export type CategorySummary = {
   name: string
   process_count: number
 }
+
+export type CategoryProcess = Omit<Process, 'memory_mb'> & {
+  memory_mb: number | null
+}
+
+export type CategoryDetail = {
+  id: number
+  name: string
+  created_at: string
+  processes: CategoryProcess[]
+}

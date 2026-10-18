@@ -1,6 +1,12 @@
 import axios from 'axios'
 import { useAppStore } from '@/store/use-store'
-import { CategoryResponse, CategorySummary, Process, ProcessResponse } from '@/types/types-api'
+import {
+  CategoryDetail,
+  CategoryResponse,
+  CategorySummary,
+  Process,
+  ProcessResponse
+} from '@/types/types-api'
 
 const { apiURl } = useAppStore.getState()
 
@@ -19,6 +25,12 @@ export async function getProcess(limit: number = 10): Promise<ProcessResponse> {
 
 export async function getCategories(): Promise<CategorySummary[]> {
   const response = await axios.get<CategorySummary[]>(`${apiURl}/catalogs`)
+
+  return response.data
+}
+
+export async function getCategory(id: number): Promise<CategoryDetail> {
+  const response = await axios.get<CategoryDetail>(`${apiURl}/catalogs/${id}`)
 
   return response.data
 }
