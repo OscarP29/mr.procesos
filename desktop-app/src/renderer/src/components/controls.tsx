@@ -3,13 +3,21 @@ import { Pause, Play, Undo } from 'lucide-react'
 
 type Props = {
   status: 'idle' | 'running' | 'paused' | 'finished'
+  disable?: boolean
   onStart: () => void
   onPause: () => void
   onResume: () => void
   onReset: () => void
 }
 
-export default function Controls({ status, onStart, onPause, onReset, onResume }: Props) {
+export default function Controls({
+  status,
+  disable = false,
+  onStart,
+  onPause,
+  onReset,
+  onResume
+}: Props) {
   const handleSimulator = () => {
     if (status === 'idle') {
       onStart()
@@ -22,7 +30,7 @@ export default function Controls({ status, onStart, onPause, onReset, onResume }
 
   return (
     <div className="flex gap-2">
-      <Button isIconOnly onClick={handleSimulator} isDisabled={status === 'finished'}>
+      <Button isIconOnly onClick={handleSimulator} isDisabled={disable || status === 'finished'}>
         {status === 'idle' ? <Play /> : <Pause />}
       </Button>
 

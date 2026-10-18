@@ -7,27 +7,16 @@ import TableProcess from '@/components/table-process'
 import TooltipInfo from '@/components/tooltip'
 import { useRoundRobin } from '@/hook/use-round-robin'
 import { useAppStore } from '@/store/use-store'
-import { dataExample } from '@/types/process'
 import { CategorySummary, ProcessResponse } from '@/types/types-api'
 import { RoundRobinProcess } from '@/types/types-round-robin'
 import { Button, Input, Label, ListBox, ComboBox, Spinner } from '@heroui/react'
 import { Atom } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 interface Config {
   delay: number
   quantum: number
 }
-
-const listProcess: RoundRobinProcess[] = dataExample.processList.map((item) => ({
-  ...item,
-  state: 'ready',
-
-  progress: 0,
-  total: item.description.length,
-  executions: 0,
-  output: ''
-}))
 
 export default function Simulator() {
   const [config, setConfig] = useState<Config>({ delay: 1000, quantum: 10 })
@@ -75,6 +64,27 @@ export default function Simulator() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const roundRobinProcess = useMemo<RoundRobinProcess[]>(
+    () =>
+      categoryProcess === null
+        ? []
+        : categoryProcess.processList.map((process): RoundRobinProcess => ({
+            ...process,
+            state: 'ready',
+            progress: 0,
+            total: process.description.length,
+            executions: 0,
+            output: ''
+          })),
+    [categoryProcess]
+  )
+
+  const handleStart = () => {
+    if (roundRobinProcess.length === 0) return
+
+    start(roundRobinProcess, config.quantum, config.delay, directory)
   }
 
   return (
@@ -160,8 +170,9 @@ export default function Simulator() {
           {/* <ModalSave /> */}
         </div>
         <Controls
+          disable={roundRobinProcess.length === 0}
           status={status}
-          onStart={() => start(listProcess, config.quantum, config.delay, directory)}
+          onStart={handleStart}
           onPause={pause}
           onResume={resume}
           onReset={reset}
