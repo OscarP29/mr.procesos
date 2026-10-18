@@ -1,21 +1,26 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { RoundRobinProcess } from '../main/types-round-robin'
+
+type RoundRobinStatus = 'idle' | 'running' | 'paused' | 'finished'
+
+type RoundRobinUpdate = {
+  processes: RoundRobinProcess[]
+  status: RoundRobinStatus
+}
 
 // Custom APIs for renderer
 const api = {
   roundRobin: {
-    start: (processes: unknown[]) => ipcRenderer.invoke('round-robin:start', processes),
-
-    onUpdate: (callback: (processes: unknown[]) => void) => {
-      const listener = (_: Electron.IpcRendererEvent, processes: unknown[]) => {
-        callback(processes)
-      }
-
+    start: (payload: { processes: unknown[]; quantum: number; delay: number }) =>
+      ipcRenderer.invoke('round-robin:start', payload),
+    pause: () => ipcRenderer.invoke('round-robin:pause'),
+    resume: () => ipcRenderer.invoke('round-robin:resume'),
+    reset: () => ipcRenderer.invoke('round-robin:reset'),
+    onUpdate: (cb: (data: RoundRobinUpdate) => void) => {
+      const listener = (_: unknown, data: RoundRobinUpdate) => cb(data)
       ipcRenderer.on('round-robin:update', listener)
-
-      return () => {
-        ipcRenderer.removeListener('round-robin:update', listener)
-      }
+      return () => ipcRenderer.removeListener('round-robin:update', listener)
     }
   }
 }

@@ -1,71 +1,39 @@
+import { RoundRobinProcess } from '@/types/types-round-robin'
 import { Card } from '@heroui/react'
 import { CpuAi } from 'lucide-react'
-function ProcessThread() {
+function SectionsProcess({ title, items }: { title: string; items: RoundRobinProcess[] }) {
   return (
-    <Card className="w-50" variant="secondary">
-      <Card.Header>
-        <Card.Title className="flex gap-2">
-          <CpuAi />
-          Proceso 1
-        </Card.Title>
-      </Card.Header>
-      <Card.Content>
-        <span>Pid: 123</span>
-        <span>Quantium: 1231</span>
-        <span>Ejecuciones: 21</span>
-      </Card.Content>
-    </Card>
+    <div>
+      <h1 className="text-xl font-bold mb-2">{title}</h1>
+      <Card className="grid grid-cols-5 gap-4">
+        {items.map((process) => (
+          <Card className="w-50" variant="secondary" key={process.pid}>
+            <Card.Header>
+              <Card.Title className="flex gap-2 capitalize">
+                <CpuAi />
+                {process.name}
+              </Card.Title>
+            </Card.Header>
+            <Card.Content>
+              <span>Pid: {process.pid}</span>
+              <span>
+                Quantium: {process.description.length}/{process.progress}
+              </span>
+              <span>Ejecuciones: {process.executions}</span>
+            </Card.Content>
+          </Card>
+        ))}
+      </Card>
+    </div>
   )
 }
-export default function SchemaSimulator() {
+export default function SchemaSimulator({ processes }: { processes: RoundRobinProcess[] }) {
+  const sortBy = (s: string) => processes.filter((p) => p.state === s)
   return (
     <div className="grid gap-y-2">
-      <div>
-        <h1 className="text-xl font-bold mb-2">Listos</h1>
-        <Card className="grid grid-cols-5 gap-4">
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-        </Card>
-      </div>
-      <Card>
-        <h1 className="text-xl font-bold mb-2">Ejecucion</h1>
-        <div className="grid grid-cols-5 gap-4">
-          <ProcessThread />
-        </div>
-      </Card>
-      <Card>
-        <h1 className="text-xl font-bold mb-2">Espera</h1>
-        <div className="grid grid-cols-5 gap-4">
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-        </div>
-      </Card>
-      <Card>
-        <h1 className="text-xl font-bold mb-2">Terminados</h1>
-        <div className="grid grid-cols-5 gap-4">
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-          <ProcessThread />
-        </div>
-      </Card>
+      <SectionsProcess title="Listos" items={sortBy('ready')} />
+      <SectionsProcess title="Ejecutando" items={sortBy('running')} />
+      <SectionsProcess title="Finalizados" items={sortBy('finished')} />
     </div>
   )
 }

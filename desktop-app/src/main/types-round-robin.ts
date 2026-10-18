@@ -3,17 +3,21 @@ export type ProcessStatus = 'ready' | 'running' | 'finished' | 'waiting'
 
 export interface RoundRobinProcess {
   pid: number
-  nombre: string
-  descripcion: string
-  usuario: string
-  prioridad: ProcessPriority
+  name: string
+  description: string
+  user: string
+  preemption: ProcessPriority
 
-  status: ProcessStatus
+  state: ProcessStatus
 
   progress: number
   total: number
-
+  executions: number
   output: string
+  arrivalTime: number
+  burst: number
+  finishTime: number | null
+  turnaround: number | null
 }
 
 export interface RoundRobinConfig {

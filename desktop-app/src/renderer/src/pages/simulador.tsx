@@ -1,9 +1,31 @@
 import Controls from '@/components/controls'
 import SchemaSimulator from '@/components/schema-simulator'
 import TooltipInfo from '@/components/tooltip'
+import { useRoundRobin } from '@/hook/use-round-robin'
+import { dataExample } from '@/types/process'
+import { RoundRobinProcess } from '@/types/types-round-robin'
 import { Button, Input, Label, ListBox, ComboBox } from '@heroui/react'
+import { useState } from 'react'
+
+interface Config {
+  delay: number
+  quantum: number
+}
+
+const listProcess: RoundRobinProcess[] = dataExample.processList.map((item) => ({
+  ...item,
+  state: 'ready',
+
+  progress: 0,
+  total: item.description.length,
+  executions: 0,
+  output: ''
+}))
 
 export default function Simulator() {
+  const [config, setConfig] = useState<Config>({ delay: 1000, quantum: 10 })
+  const { processes, status, start, pause, resume, reset } = useRoundRobin()
+
   return (
     <div className="grid">
       <div className="flex justify-between items-end">
@@ -37,16 +59,43 @@ export default function Simulator() {
                 Velocidad (ms)
               </Label>
             </div>
-            <Input type="tel" placeholder="Procesos" />
+            <Input
+              type="tel"
+              placeholder="Procesos"
+              value={config.delay}
+              onChange={(e) => setConfig((state) => ({ ...state, delay: Number(e.target.value) }))}
+            />
           </div>
-          <Button>Cargar</Button>
+          <div className="flex flex-col">
+            <div className="flex gap-1 items-start">
+              <TooltipInfo description="Unidad de tiempo que define la velocidad de simulacion en milisegundos" />
+              <Label className="mb-1" isRequired>
+                Quantium
+              </Label>
+            </div>
+            <Input
+              type="tel"
+              placeholder="1"
+              value={config.quantum}
+              onChange={(e) =>
+                setConfig((state) => ({ ...state, quantum: Number(e.target.value) }))
+              }
+            />
+          </div>
+          <Button onClick={() => console.log(config)}>Cargar</Button>
           {/* <ModalSave /> */}
         </div>
-        <Controls />
+        <Controls
+          status={status}
+          onStart={() => start(listProcess, config.quantum, config.delay)}
+          onPause={pause}
+          onResume={resume}
+          onReset={reset}
+        />
       </div>
       <div className="mt-4">
         {/* <EmplyState /> */}
-        <SchemaSimulator />
+        <SchemaSimulator processes={processes} />
       </div>
     </div>
   )

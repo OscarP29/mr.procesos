@@ -1,32 +1,36 @@
 import { useEffect, useState } from 'react'
-
 import type { RoundRobinProcess } from '@/types/types-round-robin'
+
+type Status = 'idle' | 'running' | 'paused' | 'finished'
 
 export function useRoundRobin() {
   const [processes, setProcesses] = useState<RoundRobinProcess[]>([])
-  const [isRunning, setIsRunning] = useState(false)
+  const [status, setStatus] = useState<Status>('idle')
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const unsubscribe = window.api.roundRobin.onUpdate((updatedProcesses) => {
-      setProcesses(updatedProcesses)
+    return window.api.roundRobin.onUpdate((data) => {
+      setProcesses(data.processes)
+      setStatus(data.status as Status)
     })
-
-    return unsubscribe
   }, [])
 
-  const start = async (processList: RoundRobinProcess[]) => {
-    setIsRunning(true)
-
+  const start = async (list: RoundRobinProcess[], quantum: number, delay: number) => {
     try {
-      await window.api.roundRobin.start(processList)
-    } finally {
-      setIsRunning(false)
+      setError(null)
+      await window.api.roundRobin.start({ processes: list, quantum, delay })
+    } catch (e) {
+      setError((e as Error).message)
     }
   }
 
   return {
     processes,
-    isRunning,
-    start
+    status,
+    error,
+    start,
+    pause: () => window.api.roundRobin.pause(),
+    resume: () => window.api.roundRobin.resume(),
+    reset: () => window.api.roundRobin.reset()
   }
 }

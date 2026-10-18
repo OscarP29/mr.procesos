@@ -1,13 +1,32 @@
 import { Button } from '@heroui/react'
-import { Play, Undo } from 'lucide-react'
+import { Pause, Play, Undo } from 'lucide-react'
 
-export default function Controls() {
+type Props = {
+  status: 'idle' | 'running' | 'paused' | 'finished'
+  onStart: () => void
+  onPause: () => void
+  onResume: () => void
+  onReset: () => void
+}
+
+export default function Controls({ status, onStart, onPause, onReset, onResume }: Props) {
+  const handleSimulator = () => {
+    if (status === 'idle') {
+      onStart()
+    } else if (status === 'paused') {
+      onResume()
+    } else {
+      onPause()
+    }
+  }
+
   return (
     <div className="flex gap-2">
-      <Button isIconOnly>
-        <Play />
+      <Button isIconOnly onClick={handleSimulator} isDisabled={status === 'finished'}>
+        {status === 'idle' ? <Play /> : <Pause />}
       </Button>
-      <Button isIconOnly variant="secondary">
+
+      <Button isIconOnly variant="secondary" onClick={onReset} isDisabled={status === 'idle'}>
         <Undo />
       </Button>
     </div>
