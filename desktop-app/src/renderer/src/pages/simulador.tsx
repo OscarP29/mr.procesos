@@ -24,6 +24,8 @@ export default function Simulator() {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [categoryProcess, setCategoryProcess] = useState<ProcessResponse | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
+  const [activeDelay, setActiveDelay] = useState<number>(config.delay)
+  const [activeQuantum, setActiveQuantum] = useState<number>(config.quantum)
   const { processes, status, start, pause, resume, reset } = useRoundRobin()
   const { directory } = useAppStore()
 
@@ -84,6 +86,8 @@ export default function Simulator() {
   const handleStart = () => {
     if (roundRobinProcess.length === 0) return
 
+    setActiveDelay(config.delay)
+    setActiveQuantum(config.quantum)
     start(roundRobinProcess, config.quantum, config.delay, directory)
   }
 
@@ -180,7 +184,7 @@ export default function Simulator() {
       </div>
       <div className="mt-4">
         {processes.length > 0 ? (
-          <SchemaSimulator processes={processes} />
+          <SchemaSimulator processes={processes} quantum={activeQuantum} delay={activeDelay} />
         ) : categoryProcess !== null ? (
           <TableProcess processList={categoryProcess} />
         ) : (
