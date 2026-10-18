@@ -1,154 +1,152 @@
-import { Worker } from 'node:worker_threads'
 import { app, BrowserWindow } from 'electron'
+import { Worker } from 'node:worker_threads'
 import { join } from 'node:path'
-import { mkdirSync } from 'node:fs'
-
+import { mkdirSync, rmSync } from 'node:fs'
+// ?modulePath hace que electron-vite compile el worker y te dé la ruta correcta
+// tanto en desarrollo como en build
+import workerPath from '../workers/process-workers?modulePath'
 import type { RoundRobinProcess, RoundRobinConfig } from '../types-round-robin'
 
+type Status = 'idle' | 'running' | 'paused' | 'finished'
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
 export class RoundRobinService {
-  private processes: RoundRobinProcess[] = []
-
   private workers = new Map<number, Worker>()
+  private processes: RoundRobinProcess[]
+  private queue: number[]
+  private status: Status = 'idle'
+  private looping = false
+  private generation = 0
+  private dir = join(app.getPath('userData'), 'round-robin')
 
-  private config: RoundRobinConfig
-
-  private window: BrowserWindow
-
-  private running = false
-
-  constructor(window: BrowserWindow, config: RoundRobinConfig) {
-    this.window = window
-    this.config = config
-  }
-
-  async start(processes: RoundRobinProcess[]) {
-    if (this.running) {
-      throw new Error('Round Robin ya está ejecutándose')
-    }
-
-    this.running = true
-
-    this.processes = processes.map((process) => ({
-      ...process,
-      status: 'ready',
+  constructor(
+    private win: BrowserWindow,
+    private config: RoundRobinConfig,
+    processes: RoundRobinProcess[]
+  ) {
+    this.processes = processes.map((p) => ({
+      ...p,
+      state: 'ready',
       progress: 0,
-      total: process.descripcion.length,
+      total: p.description.length,
+      executions: 0,
       output: ''
     }))
+    this.queue = this.processes.map((p) => p.pid)
+  }
 
-    const outputDir = join(app.getPath('userData'), 'round-robin')
+  start() {
+    if (this.status !== 'idle') return
+    rmSync(this.dir, { recursive: true, force: true })
+    mkdirSync(this.dir, { recursive: true })
 
-    mkdirSync(outputDir, { recursive: true })
-
-    const workerPath = join(__dirname, '../workers/process.worker.js')
-
-    try {
-      for (const process of this.processes) {
-        const worker = new Worker(workerPath, {
+    for (const p of this.processes) {
+      this.workers.set(
+        p.pid,
+        new Worker(workerPath, {
           workerData: {
-            pid: process.pid,
-            descripcion: process.descripcion,
-            filePath: join(outputDir, `${process.pid}.txt`)
+            pid: p.pid,
+            description: p.description,
+            filePath: join(this.dir, `${p.pid}.txt`)
           }
         })
-
-        this.workers.set(process.pid, worker)
-      }
-
-      this.emitUpdate()
-
-      // Cola de procesos
-      const queue = [...this.processes]
-
-      while (queue.length > 0 && this.running) {
-        const process = queue.shift()!
-
-        process.status = 'running'
-
-        this.emitUpdate()
-
-        await this.executeTurn(process)
-
-        if (process.progress >= process.total) {
-          process.status = 'finished'
-        } else {
-          process.status = 'ready'
-          queue.push(process)
-        }
-
-        this.emitUpdate()
-
-        await this.sleep(this.config.delay)
-      }
-    } finally {
-      this.running = false
-
-      await Promise.all([...this.workers.values()].map((worker) => worker.terminate()))
-
-      this.workers.clear()
-    }
-  }
-
-  private executeTurn(process: RoundRobinProcess): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const worker = this.workers.get(process.pid)
-
-      if (!worker) {
-        reject(new Error('Worker no encontrado'))
-        return
-      }
-
-      const cleanup = () => {
-        worker.off('message', onMessage)
-        worker.off('error', onError)
-        worker.off('exit', onExit)
-      }
-
-      const onError = (error: Error) => {
-        cleanup()
-        reject(error)
-      }
-
-      const onExit = (code: number) => {
-        cleanup()
-        reject(new Error(`Worker finalizó con código ${code}`))
-      }
-
-      const onMessage = (message: { type: string; character?: string; progress?: number }) => {
-        if (message.type === 'progress') {
-          process.output += message.character ?? ''
-          process.progress = message.progress ?? process.progress
-
-          this.emitUpdate()
-        }
-
-        if (message.type === 'turn-completed') {
-          cleanup()
-          resolve()
-        }
-      }
-
-      worker.on('message', onMessage)
-      worker.once('error', onError)
-      worker.once('exit', onExit)
-
-      worker.postMessage({
-        type: 'execute',
-        quantum: this.config.quantum
-      })
-    })
-  }
-
-  private emitUpdate() {
-    if (!this.window.isDestroyed()) {
-      this.window.webContents.send(
-        'round-robin:update',
-        this.processes.map((process) => ({ ...process }))
       )
     }
+    this.status = 'running'
+    this.emit()
+    void this.loop()
   }
 
-  private sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+  pause() {
+    if (this.status !== 'running') return
+    this.status = 'paused'
+    this.emit()
+  }
+
+  resume() {
+    if (this.status !== 'paused') return
+    this.status = 'running'
+    this.emit()
+    if (!this.looping) void this.loop()
+  }
+
+  reset() {
+    this.generation++ // invalida cualquier loop en curso
+    this.status = 'idle'
+    this.killWorkers()
+    rmSync(this.dir, { recursive: true, force: true })
+    this.processes = this.processes.map((p) => ({
+      ...p,
+      state: 'ready',
+      progress: 0,
+      output: '',
+      executions: 0
+    }))
+    this.queue = this.processes.map((p) => p.pid)
+    this.emit()
+  }
+
+  private async loop() {
+    const gen = this.generation
+    this.looping = true
+    try {
+      while (this.status === 'running' && this.queue.length > 0) {
+        const pid = this.queue.shift()!
+        const current = this.processes.find((x) => x.pid === pid)!
+        this.update(pid, { state: 'running', executions: current.executions + 1 })
+
+        const result = await this.runTurn(pid)
+        if (gen !== this.generation) return // hubo reset
+
+        const p = this.processes.find((x) => x.pid === pid)!
+        this.update(pid, {
+          progress: result.progress,
+          output: p.output + result.chunk,
+          state: result.finished ? 'finished' : 'ready'
+        })
+        if (!result.finished) this.queue.push(pid)
+
+        await sleep(this.config.delay)
+        if (gen !== this.generation) return
+      }
+
+      if (this.status === 'running') {
+        this.status = 'finished'
+        this.killWorkers()
+        this.emit()
+      }
+    } finally {
+      this.looping = false
+    }
+  }
+
+  private runTurn(pid: number) {
+    return new Promise<{ progress: number; chunk: string; finished: boolean }>(
+      (resolve, reject) => {
+        const w = this.workers.get(pid)!
+        w.once('message', resolve)
+        w.once('error', reject)
+        w.postMessage({ type: 'turn', quantum: this.config.quantum })
+      }
+    )
+  }
+
+  private update(pid: number, patch: Partial<RoundRobinProcess>) {
+    this.processes = this.processes.map((p) => (p.pid === pid ? { ...p, ...patch } : p))
+    this.emit()
+  }
+
+  private killWorkers() {
+    this.workers.forEach((w) => w.terminate())
+    this.workers.clear()
+  }
+
+  private emit() {
+    if (this.win.isDestroyed()) return
+    this.win.webContents.send('round-robin:update', {
+      processes: this.processes,
+      status: this.status
+    })
   }
 }

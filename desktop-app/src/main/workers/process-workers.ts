@@ -1,45 +1,28 @@
 import { parentPort, workerData } from 'node:worker_threads'
 import { appendFileSync, writeFileSync } from 'node:fs'
 
-interface WorkerData {
+const { pid, description, filePath } = workerData as {
   pid: number
-  descripcion: string
+  description: string
   filePath: string
 }
-const { pid, descripcion, filePath } = workerData as WorkerData
 
 let progress = 0
+writeFileSync(filePath, '') // crea el txt vacío
 
-writeFileSync(filePath, '', 'utf-8')
+parentPort!.on('message', (msg: { type: 'turn'; quantum: number }) => {
+  if (msg.type !== 'turn') return
 
-parentPort?.on('message', (message) => {
-  if (message.type !== 'execute') return
+  const end = Math.min(progress + msg.quantum, description.length)
+  const chunk = description.slice(progress, end)
+  //Esto es lo que escribe en el text
+  appendFileSync(filePath, chunk)
+  progress = end
 
-  const quantum: number = message.quantum
-
-  let executed = 0
-
-  while (executed < quantum && progress < descripcion.length) {
-    const character = descripcion[progress]
-
-    appendFileSync(filePath, character, 'utf-8')
-
-    progress++
-    executed++
-
-    parentPort?.postMessage({
-      type: 'progress',
-      pid,
-      progress,
-      total: descripcion.length,
-      character
-    })
-  }
-
-  parentPort?.postMessage({
-    type: 'turn-completed',
+  parentPort!.postMessage({
     pid,
     progress,
-    finished: progress >= descripcion.length
+    chunk,
+    finished: progress >= description.length
   })
 })

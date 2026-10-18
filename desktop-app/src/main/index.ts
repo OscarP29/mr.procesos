@@ -2,6 +2,8 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { RoundRobinService } from './service/round-robin-service'
+import { RoundRobinProcess } from './types-round-robin'
 
 function createWindow(): void {
   // Create the browser window.
@@ -35,7 +37,7 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
-
+let rr: RoundRobinService | null = null
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -53,6 +55,24 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  ipcMain.handle(
+    'round-robin:start',
+    (event, payload: { processes: RoundRobinProcess[]; quantum: number; delay: number }) => {
+      const { processes, quantum, delay } = payload
+      if (!Number.isInteger(quantum) || quantum < 1) throw new Error('Quantum inválido')
+      if (!Number.isFinite(delay) || delay < 0) throw new Error('Velocidad inválida')
+      if (!processes?.length) throw new Error('No hay procesos')
+
+      rr?.reset()
+      const win = BrowserWindow.fromWebContents(event.sender)!
+      rr = new RoundRobinService(win, { quantum, delay }, processes)
+      rr.start()
+    }
+  )
+  ipcMain.handle('round-robin:pause', () => rr?.pause())
+  ipcMain.handle('round-robin:resume', () => rr?.resume())
+  ipcMain.handle('round-robin:reset', () => rr?.reset())
+
   createWindow()
 
   app.on('activate', function () {
@@ -66,6 +86,7 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+  rr?.reset() //Limpiar todos los Workers al cerrar
   if (process.platform !== 'darwin') {
     app.quit()
   }
