@@ -1,10 +1,13 @@
 import Controls from '@/components/controls'
+import Header from '@/components/header'
 import SchemaSimulator from '@/components/schema-simulator'
 import TooltipInfo from '@/components/tooltip'
 import { useRoundRobin } from '@/hook/use-round-robin'
+import { useAppStore } from '@/store/use-store'
 import { dataExample } from '@/types/process'
 import { RoundRobinProcess } from '@/types/types-round-robin'
 import { Button, Input, Label, ListBox, ComboBox } from '@heroui/react'
+import { Atom } from 'lucide-react'
 import { useState } from 'react'
 
 interface Config {
@@ -25,10 +28,12 @@ const listProcess: RoundRobinProcess[] = dataExample.processList.map((item) => (
 export default function Simulator() {
   const [config, setConfig] = useState<Config>({ delay: 1000, quantum: 10 })
   const { processes, status, start, pause, resume, reset } = useRoundRobin()
+  const { directory } = useAppStore()
 
   return (
     <div className="grid">
-      <div className="flex justify-between items-end">
+      <Header icon={Atom} title="Simulador" />
+      <div className="flex justify-between items-end mt-4">
         <div className="flex items-end gap-4">
           <ComboBox className="w-[256px]" isRequired>
             <div className="flex gap-1 items-start">
@@ -87,7 +92,7 @@ export default function Simulator() {
         </div>
         <Controls
           status={status}
-          onStart={() => start(listProcess, config.quantum, config.delay)}
+          onStart={() => start(listProcess, config.quantum, config.delay, directory)}
           onPause={pause}
           onResume={resume}
           onReset={reset}

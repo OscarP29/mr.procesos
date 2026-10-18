@@ -1,14 +1,17 @@
+import Header from '@/components/header'
 import ModalSave from '@/components/modal-save'
 // import EmplyState from '@/components/emply-state'
 import TableProcess from '@/components/table-process'
 import TooltipInfo from '@/components/tooltip'
 import { dataExample } from '@/types/process'
 import { Input, Label, ComboBox, ListBox, Button } from '@heroui/react'
+import { Cpu } from 'lucide-react'
 
 export default function ProcessPage() {
   return (
     <div className="grid">
-      <div className="flex justify-between items-end">
+      <Header icon={Cpu} title="Procesos" />
+      <div className="flex justify-between items-end mt-4">
         <div className="flex items-end gap-4">
           <div className="flex flex-col">
             <div className="flex gap-1 items-start">

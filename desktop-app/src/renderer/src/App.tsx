@@ -3,6 +3,7 @@ import { Tabs } from '@heroui/react'
 import { Settings, Cpu, Atom } from 'lucide-react'
 import ProcessPage from './pages/process'
 import Simulator from './pages/simulador'
+import PageSettings from './pages/settings'
 
 const listClassName = [
   'rounded-xl border border-accent/10 bg-accent-soft/30 p-1',
@@ -58,7 +59,7 @@ export default function App() {
         </Tabs.Panel>
 
         <Tabs.Panel className="flex-1 h-full p-4 overflow-auto bg-dots" id="reports">
-          <p>Generate and download detailed reports.</p>
+          <PageSettings />
         </Tabs.Panel>
       </Tabs>
     </div>

@@ -23,13 +23,15 @@ export class RoundRobinService {
   private pending: number[] = []
 
   //Ruta en la que se guardan los los archivos
-  private dir = join(app.getPath('userData'), 'round-robin')
+  private dir
 
   constructor(
     private win: BrowserWindow,
     private config: RoundRobinConfig,
     processes: RoundRobinProcess[]
   ) {
+    const baseUrl = config.outputDir ?? app.getPath('userData')
+    this.dir = join(baseUrl, 'MrProcesos-round-robin')
     this.source = processes
     this.init()
   }

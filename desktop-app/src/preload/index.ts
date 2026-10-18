@@ -12,8 +12,12 @@ type RoundRobinUpdate = {
 // Custom APIs for renderer
 const api = {
   roundRobin: {
-    start: (payload: { processes: unknown[]; quantum: number; delay: number }) =>
-      ipcRenderer.invoke('round-robin:start', payload),
+    start: (payload: {
+      processes: unknown[]
+      quantum: number
+      delay: number
+      outputDir?: string
+    }) => ipcRenderer.invoke('round-robin:start', payload),
     pause: () => ipcRenderer.invoke('round-robin:pause'),
     resume: () => ipcRenderer.invoke('round-robin:resume'),
     reset: () => ipcRenderer.invoke('round-robin:reset'),
@@ -22,7 +26,8 @@ const api = {
       ipcRenderer.on('round-robin:update', listener)
       return () => ipcRenderer.removeListener('round-robin:update', listener)
     }
-  }
+  },
+  selectDirectory: () => ipcRenderer.invoke('dialog:openDirectory')
 }
 
 if (process.contextIsolated) {
