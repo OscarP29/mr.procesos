@@ -20,3 +20,9 @@ export type CategoryResponse = {
   name: string
   processes: ProcessResponse[]
 }
+
+export type CategorySummary = {
+  id: number
+  name: string
+  process_count: number
+}

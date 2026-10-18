@@ -1,14 +1,17 @@
+import { getCategories } from '@/api/api'
 import Controls from '@/components/controls'
+import EmplyState from '@/components/emply-state'
 import Header from '@/components/header'
 import SchemaSimulator from '@/components/schema-simulator'
 import TooltipInfo from '@/components/tooltip'
 import { useRoundRobin } from '@/hook/use-round-robin'
 import { useAppStore } from '@/store/use-store'
 import { dataExample } from '@/types/process'
+import { CategorySummary } from '@/types/types-api'
 import { RoundRobinProcess } from '@/types/types-round-robin'
 import { Button, Input, Label, ListBox, ComboBox } from '@heroui/react'
 import { Atom } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface Config {
   delay: number
@@ -27,8 +30,21 @@ const listProcess: RoundRobinProcess[] = dataExample.processList.map((item) => (
 
 export default function Simulator() {
   const [config, setConfig] = useState<Config>({ delay: 1000, quantum: 10 })
+  const [categories, setCategories] = useState<CategorySummary[]>([])
   const { processes, status, start, pause, resume, reset } = useRoundRobin()
   const { directory } = useAppStore()
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        setCategories(await getCategories())
+      } catch (error) {
+        console.error('No se pudieron obtener las categorías', error)
+      }
+    }
+
+    loadCategories()
+  }, [])
 
   return (
     <div className="grid">
@@ -46,14 +62,17 @@ export default function Simulator() {
             </ComboBox.InputGroup>
             <ComboBox.Popover>
               <ListBox>
-                <ListBox.Item id="aardvark" textValue="Mis Procesos 1">
-                  Mis Procesos 1
-                  <ListBox.ItemIndicator />
-                </ListBox.Item>
-                <ListBox.Item id="cat" textValue="Mis Procesos 2">
-                  Mis Procesos 2
-                  <ListBox.ItemIndicator />
-                </ListBox.Item>
+                {categories.map((category) => (
+                  <ListBox.Item
+                    key={category.id}
+                    id={category.id}
+                    textValue={category.name}
+                    value={category.name}
+                  >
+                    {category.name}
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                ))}
               </ListBox>
             </ComboBox.Popover>
           </ComboBox>
@@ -99,8 +118,14 @@ export default function Simulator() {
         />
       </div>
       <div className="mt-4">
-        {/* <EmplyState /> */}
-        <SchemaSimulator processes={processes} />
+        {processes.length === 0 ? (
+          <EmplyState
+            title="No hay procesos que simular"
+            description="Selecciona una categoría y pulsa Cargar para comenzar."
+          />
+        ) : (
+          <SchemaSimulator processes={processes} />
+        )}
       </div>
     </div>
   )
