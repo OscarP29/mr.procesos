@@ -23,7 +23,7 @@ export default function Controls({ status, onStart, onPause, onReset, onResume }
   return (
     <div className="flex gap-2">
       <Button isIconOnly onClick={handleSimulator} isDisabled={status === 'finished'}>
-        {status === 'paused' ? <Pause /> : <Play />}
+        {status === 'idle' ? <Play /> : <Pause />}
       </Button>
 
       <Button isIconOnly variant="secondary" onClick={onReset} isDisabled={status === 'idle'}>

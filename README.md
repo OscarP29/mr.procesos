@@ -165,9 +165,25 @@ y `renderer`) y tres secciones de navegación:
   ejecución, espera y terminados, además de controles de reproducción.
 - **Configuración**: sección inicial pendiente de implementar.
 
-Las vistas de procesos y simulación son actualmente prototipos visuales: la
-tabla y el esquema usan datos de ejemplo, los controles aún no ejecutan
-acciones y el frontend no consume la API.
+La vista de procesos y la selección de categorías de la simulación siguen usando
+datos de ejemplo; el frontend todavía no consume la API. La simulación ya cuenta
+con una implementación de Round Robin en el proceso principal y sus controles
+permiten iniciar, pausar, reanudar y reiniciar la ejecución.
+
+#### Simulación Round Robin
+
+La simulación recibe una lista de procesos, un quantum y una velocidad en
+milisegundos. Los procesos avanzan por turnos y los que no han terminado vuelven
+al final de la cola. El proceso principal administra la planificación y los
+workers procesan el trabajo de cada turno; el estado actualizado se envía a la
+interfaz de escritorio.
+
+La implementación actual también contempla tiempos de llegada y el campo
+`preemption` de los procesos. Los datos y categorías todavía son de ejemplo, y
+la integración con la API está pendiente. Para conocer en detalle los datos de
+entrada y salida, el flujo del algoritmo, el uso de workers, los archivos
+generados y las limitaciones actuales, consulta
+[la documentación detallada del algoritmo](desktop-app/src/main/round-robin.md).
 
 #### Vista de procesos
 

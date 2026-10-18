@@ -40,7 +40,7 @@ export const dataExample: ProcessResponse = {
       user: 'OSUDESKTOP\\ADMIN',
       cpu: 0,
       memory_mb: 121.27,
-      preemption: 1
+      preemption: 0
     },
     {
       pid: 1676,
@@ -49,7 +49,7 @@ export const dataExample: ProcessResponse = {
       user: 'OSUDESKTOP\\ADMIN',
       cpu: 0,
       memory_mb: 127.6,
-      preemption: 1
+      preemption: 0
     },
     {
       pid: 1832,
@@ -67,7 +67,7 @@ export const dataExample: ProcessResponse = {
       user: 'OSUDESKTOP\\ADMIN',
       cpu: 0,
       memory_mb: 136.03,
-      preemption: 1
+      preemption: 0
     },
     {
       pid: 2272,
@@ -76,7 +76,7 @@ export const dataExample: ProcessResponse = {
       user: 'OSUDESKTOP\\ADMIN',
       cpu: 0,
       memory_mb: 58.98,
-      preemption: 1
+      preemption: 0
     },
     {
       pid: 2360,
@@ -85,25 +85,25 @@ export const dataExample: ProcessResponse = {
       user: 'OSUDESKTOP\\ADMIN',
       cpu: 0,
       memory_mb: 0.49,
-      preemption: 1
+      preemption: 0
     },
     {
-      pid: 3176,
+      pid: 3076,
       name: 'CrossDeviceResume.exe',
       description: 'Este proceso es CrossDeviceResume.exe.',
       user: 'OSUDESKTOP\\ADMIN',
       cpu: 0,
       memory_mb: 48.45,
-      preemption: 1
+      preemption: 0
     },
     {
-      pid: 3916,
+      pid: 3906,
       name: 'conhost.exe',
       description: 'Console Window Host',
       user: 'OSUDESKTOP\\ADMIN',
       cpu: 0,
       memory_mb: 0.24,
-      preemption: 1
+      preemption: 0
     }
   ]
 }

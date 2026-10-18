@@ -16,7 +16,9 @@ function SectionsProcess({ title, items }: { title: string; items: RoundRobinPro
             </Card.Header>
             <Card.Content>
               <span>Pid: {process.pid}</span>
-              <span>Quantium: {process.progress}</span>
+              <span>
+                Quantium: {process.description.length}/{process.progress}
+              </span>
               <span>Ejecuciones: {process.executions}</span>
             </Card.Content>
           </Card>
@@ -31,7 +33,6 @@ export default function SchemaSimulator({ processes }: { processes: RoundRobinPr
     <div className="grid gap-y-2">
       <SectionsProcess title="Listos" items={sortBy('ready')} />
       <SectionsProcess title="Ejecutando" items={sortBy('running')} />
-      <SectionsProcess title="Esperando" items={sortBy('waiting')} />
       <SectionsProcess title="Finalizados" items={sortBy('finished')} />
     </div>
   )

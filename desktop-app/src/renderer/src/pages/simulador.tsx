@@ -24,7 +24,7 @@ const listProcess: RoundRobinProcess[] = dataExample.processList.map((item) => (
 
 export default function Simulator() {
   const [config, setConfig] = useState<Config>({ delay: 1000, quantum: 10 })
-  const { processes, status, error, start, pause, resume, reset } = useRoundRobin()
+  const { processes, status, start, pause, resume, reset } = useRoundRobin()
 
   return (
     <div className="grid">
@@ -78,7 +78,7 @@ export default function Simulator() {
               placeholder="1"
               value={config.quantum}
               onChange={(e) =>
-                setConfig((state) => ({ ...state, quatium: Number(e.target.value) }))
+                setConfig((state) => ({ ...state, quantum: Number(e.target.value) }))
               }
             />
           </div>
