@@ -18,24 +18,12 @@ desktop-app/  Aplicación de escritorio Electron y React
 
 ## API (`api-server`)
 
-### Requisitos
+Consulta procesos del sistema operativo y permite guardar y administrar catálogos
+de procesos en SQLite. La documentación completa —endpoints, DTOs, formas del
+JSON, errores y esquema de la base de datos— está en
+[`api-server/README.md`](api-server/README.md).
 
-- Windows. El servidor utiliza `pywin32` para leer la descripción de los
-  archivos de los procesos.
-- [Python](https://www.python.org/downloads/) 3.12 o posterior.
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) para gestionar
-  el entorno virtual y las dependencias.
-
-Comprueba que las herramientas están disponibles:
-
-```powershell
-python --version
-uv --version
-```
-
-### Instalación y ejecución
-
-Desde la raíz del repositorio:
+Para levantarla:
 
 ```powershell
 cd api-server
@@ -43,96 +31,12 @@ uv sync
 uv run uvicorn api_server.main:app --reload
 ```
 
-El servidor estará disponible en <http://127.0.0.1:8000>. La opción `--reload`
-lo reinicia cuando detecta cambios; puedes quitarla para ejecutarlo sin recarga
-automática. Las dependencias están definidas en
-[`api-server/pyproject.toml`](api-server/pyproject.toml) y sus versiones
-resueltas en `api-server/uv.lock`.
+El servidor estará disponible en <http://127.0.0.1:8000>, con documentación
+interactiva en <http://127.0.0.1:8000/docs>.
 
 Ejecuta la consola **como administrador** para que la API pueda leer también los
 procesos propiedad de otras cuentas, como los servicios del sistema. Sin
 privilegios, `GET /process/` los descarta.
-
-FastAPI genera documentación interactiva automáticamente:
-
-- Swagger UI: <http://127.0.0.1:8000/docs>
-- ReDoc: <http://127.0.0.1:8000/redoc>
-
-### Endpoints
-
-| Método | Ruta        | Descripción                               |
-| ------ | ----------- | ----------------------------------------- |
-| `GET`  | `/`         | Devuelve el mensaje `Hi Mom!`.            |
-| `GET`  | `/process/` | Devuelve información de procesos activos. |
-
-El endpoint de procesos acepta el parámetro opcional `limit`, que determina el
-número máximo de procesos a devolver. Su valor predeterminado es `10` y acepta
-valores entre `1` y `500`.
-
-La respuesta tiene esta estructura:
-
-```json
-{
-  "total": 1,
-  "processList": [
-    {
-      "pid": 123,
-      "name": "process-name",
-      "description": "Descripción del proceso",
-      "user": "usuario",
-      "cpu": 0,
-      "memory_mb": 0,
-      "preemption": 1
-    }
-  ]
-}
-```
-
-Los valores dependen de los procesos activos en el equipo. `total` indica
-cuántos elementos se han incluido en `processList`, no necesariamente el total
-de procesos del sistema. La descripción se obtiene de los metadatos del archivo
-cuando están disponibles; en caso contrario, se genera una descripción
-predeterminada. `preemption` sigue la convención `0 = expulsivo` y
-`1 = no expulsivo`, y se calcula a partir de la cuenta propietaria del proceso:
-si el usuario contiene `system` (por ejemplo `NT AUTHORITY\SYSTEM`) el proceso
-es del sistema y se marca como `1`; en cualquier otro caso se marca como `0`.
-
-### Persistencia (ORM y base de datos)
-
-La persistencia usa [SQLAlchemy](https://www.sqlalchemy.org/) 2.0 sobre un
-archivo SQLite local. No hay servidor de base de datos: el archivo se crea solo
-en el primer arranque y queda en `api-server/data/processes.db`, ruta que está
-en `.gitignore` porque es un dato generado, no código.
-
-El esquema se crea automáticamente con `create_all` al iniciar el servidor (en el
-`lifespan` de FastAPI), sin necesidad de migraciones manuales.
-
-#### Estructura del paquete de datos
-
-```text
-api-server/src/api_server/models/
-├── database.py        engine, SessionLocal, get_db, init_db
-├── catalog_model.py   Catalog (tabla catalogs) y el enum Preemption
-├── process_model.py   Process (tabla processes)
-└── api_models.py      modelos de entrada/salida HTTP (valida el query param limit)
-```
-
-#### Esquema
-
-| Tabla | Columna | Tipo | Descripción |
-| --- | --- | --- | --- |
-| `catalogs` | `id` | `INTEGER` PK AI | Identificador interno del catálogo. |
-| | `name` | `VARCHAR(100)` UNIQUE | Nombre que define el usuario. No se repiten. |
-| | `created_at` | `DATETIME` | Fecha de creación. |
-| `processes` | `id` | `INTEGER` PK AI | Identificador interno de la fila. No es el PID. |
-| | `catalog_id` | `INTEGER` FK | Catálogo al que pertenece. `ON DELETE CASCADE`: al borrar el catálogo se borran sus procesos. |
-| | `pid` | `INTEGER` | PID real del proceso en el sistema operativo. |
-| | `name` | `VARCHAR(120)` | Nombre del proceso. |
-| | `user` | `VARCHAR(120)` | Cuenta propietaria del proceso. |
-| | `description` | `TEXT` | Descripción del proceso. |
-| | `preemption` | `INTEGER` | `0` expulsivo, `1` no expulsivo. |
-| | `cpu` | `FLOAT` | Porcentaje de CPU en el momento del catálogo. |
-| | `memory_mb` | `FLOAT` | Memoria en megabytes. |
 
 ## Aplicación de escritorio (`desktop-app`)
 
