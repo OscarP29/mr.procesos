@@ -1,7 +1,8 @@
-import { ProcessResponse } from '@/types/process'
+import { ProcessResponse } from '@/types/types-api'
 import { Table } from '@heroui/react'
+import { memo } from 'react'
 
-export default function TableProcess({ processList }: { processList: ProcessResponse }) {
+function TableProcess({ processList }: { processList: ProcessResponse }) {
   return (
     <Table>
       <Table.ScrollContainer>
@@ -47,3 +48,5 @@ export default function TableProcess({ processList }: { processList: ProcessResp
     </Table>
   )
 }
+
+export default memo(TableProcess)

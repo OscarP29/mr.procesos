@@ -1,8 +1,10 @@
-import { Settings2, Sun, Moon, FolderOpen, Folder, Check } from 'lucide-react'
+import { Settings2, Sun, Moon, FolderOpen, Folder, Check, FlaskConical, Wifi } from 'lucide-react'
 
-import { Button, Card, Separator } from '@heroui/react'
+import { Button, Card, Input, Separator, Spinner } from '@heroui/react'
 import { useAppStore } from '@/store/use-store'
 import Header from '@/components/header'
+import { getHelloMom } from '@/api/api'
+import { useState } from 'react'
 
 const themes = [
   {
@@ -18,7 +20,11 @@ const themes = [
 ] as const
 
 export default function PageSettings() {
-  const { theme, directory, setTheme, setDirectory } = useAppStore()
+  const { theme, directory, setTheme, setDirectory, apiURl, setApiUrl } = useAppStore()
+  const [hello, setHello] = useState<{ loading: boolean; hello: string }>({
+    loading: false,
+    hello: ''
+  })
 
   const handleSelectDirectory = async () => {
     const selectedDirectory = await window.api.selectDirectory()
@@ -26,6 +32,11 @@ export default function PageSettings() {
     if (selectedDirectory) {
       setDirectory(selectedDirectory)
     }
+  }
+  const handleHello = async () => {
+    setHello((state) => ({ ...state, loading: true }))
+    const response = await getHelloMom()
+    setHello({ loading: false, hello: response })
   }
 
   return (
@@ -78,6 +89,48 @@ export default function PageSettings() {
         </Card.Content>
       </Card>
 
+      <Card>
+        <Card.Content className="space-y-5 p-6">
+          <div>
+            <h2 className="text-lg font-semibold">API</h2>
+
+            <p className="mt-1 text-sm text-muted">
+              Configura la URL de la API para hacer las peticiones HTTP
+            </p>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-3">
+            <label className="text-sm font-medium">URL</label>
+
+            <div className="flex items-center gap-3 rounded-lg border border-default p-3">
+              <Wifi className="size-5 shrink-0 text-muted" />
+
+              <Input
+                fullWidth
+                placeholder="http//localhost:4000"
+                value={apiURl}
+                onChange={(e) => setApiUrl(e.target.value)}
+              />
+              <Button size="sm" isPending={hello.loading} onPress={handleHello}>
+                {({ isPending }) => (
+                  <>
+                    {isPending ? (
+                      <Spinner color="current" size="sm" />
+                    ) : (
+                      <FlaskConical className="size-4" />
+                    )}
+                    {isPending ? 'Probando...' : 'Probar'}
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <p className="text-xs text-muted">API: {`${hello.hello ? hello.hello : '~'}`}.</p>
+          </div>
+        </Card.Content>
+      </Card>
       <Card>
         <Card.Content className="space-y-5 p-6">
           <div>
