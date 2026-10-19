@@ -350,3 +350,32 @@ src/api_server/models/
 | | `preemption` | `INTEGER` | `0` expulsivo, `1` no expulsivo. `CHECK (preemption IN (0, 1))`. |
 | | `cpu` | `FLOAT` | Porcentaje de CPU en el momento del catálogo. |
 | | `memory_mb` | `FLOAT` | Memoria en megabytes. |
+
+## Filtrado y ordenamiento por CPU/RAM
+
+`GET /process/` permite filtrar y ordenar los procesos por consumo de CPU o
+memoria. Todos los parámetros son opcionales:
+
+| Parámetro | Valores | Predeterminado | Descripción |
+| --- | --- | --- | --- |
+| `limit` | De `1` a `500` | `10` | Cantidad máxima de procesos devueltos. |
+| `sort_by` | `cpu` o `memory` | Sin ordenar | Campo usado para ordenar. `memory` corresponde a `memory_mb`. |
+| `order` | `asc` o `desc` | `desc` | Dirección del orden, aplicada cuando se especifica `sort_by`. |
+| `min_cpu` | De `0` a `100` | Sin mínimo | Porcentaje mínimo de CPU; incluye procesos con ese valor o superior. |
+| `min_memory_mb` | Mayor o igual a `0` | Sin mínimo | Memoria mínima en MB; incluye procesos con ese valor o superior. |
+
+Ejemplos:
+
+```text
+http://127.0.0.1:8000/process/?sort_by=cpu&order=desc&limit=10
+http://127.0.0.1:8000/process/?sort_by=memory&order=desc&min_memory_mb=100&limit=20
+http://127.0.0.1:8000/process/?min_cpu=5&min_memory_mb=50
+
+
+```
+
+Los filtros se aplican antes del ordenamiento y del límite. Los procesos sin
+una medición de memoria no coinciden con `min_memory_mb`; al ordenar por
+memoria, esos valores quedan al final. Si no se envía `sort_by`, no se aplica
+ordenamiento. `total` indica cuántos procesos se devolvieron tras aplicar los
+filtros y `limit`. Los valores fuera de los rangos permitidos devuelven `422`.
