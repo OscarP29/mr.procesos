@@ -17,7 +17,7 @@ class ProcessService:
             if not username or username.strip().casefold() == "unknown":
                 continue
 
-            memory_info = info.get("memory_info")
+            memory_info = info.get("memory_info")  # hola
 
             is_system = ProcessClassifier.is_system_process(username)
             preemption = (
