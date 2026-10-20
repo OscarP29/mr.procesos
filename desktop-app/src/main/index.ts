@@ -1,9 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { RoundRobinService } from './service/round-robin-service'
 import { RoundRobinProcess } from './types-round-robin'
+import { existsSync, statSync } from 'fs'
 
 function createWindow(): void {
   // Create the browser window.
@@ -57,21 +58,45 @@ app.whenReady().then(() => {
 
   ipcMain.handle(
     'round-robin:start',
-    (event, payload: { processes: RoundRobinProcess[]; quantum: number; delay: number }) => {
-      const { processes, quantum, delay } = payload
+    (
+      event,
+      payload: {
+        processes: RoundRobinProcess[]
+        quantum: number
+        delay: number
+        outputDir?: string
+      }
+    ) => {
+      const { processes, quantum, delay, outputDir } = payload
       if (!Number.isInteger(quantum) || quantum < 1) throw new Error('Quantum inválido')
       if (!Number.isFinite(delay) || delay < 0) throw new Error('Velocidad inválida')
       if (!processes?.length) throw new Error('No hay procesos')
+      if (outputDir && !(existsSync(outputDir) && statSync(outputDir).isDirectory())) {
+        throw new Error('La carpeta seleccionada no existe')
+      }
 
       rr?.reset()
       const win = BrowserWindow.fromWebContents(event.sender)!
-      rr = new RoundRobinService(win, { quantum, delay }, processes)
+      rr = new RoundRobinService(win, { quantum, delay, outputDir }, processes)
       rr.start()
     }
   )
   ipcMain.handle('round-robin:pause', () => rr?.pause())
   ipcMain.handle('round-robin:resume', () => rr?.resume())
   ipcMain.handle('round-robin:reset', () => rr?.reset())
+
+  ipcMain.handle('dialog:openDirectory', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory', 'createDirectory'],
+      title: 'Seleccionar directorio'
+    })
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
+    }
+
+    return result.filePaths[0]
+  })
 
   createWindow()
 

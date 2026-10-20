@@ -97,6 +97,12 @@ generados y las limitaciones actuales, consulta
 
 ![Vista de simulación de procesos](desktop-app/src/renderer/src/assets/image-4.png)
 
+#### Animaciones
+
+![Animación 1](desktop-app/src/renderer/src/assets/Animation.gif)
+
+![Animación 2](desktop-app/src/renderer/src/assets/Animation.2.gif)
+
 #### Historial de diseños
 
 Estas capturas corresponden a versiones anteriores de la interfaz y se

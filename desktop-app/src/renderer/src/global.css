@@ -68,7 +68,7 @@
   --border: oklch(28.00% 0.0015 312.08);
   --danger: oklch(59.40% 0.1973 31.62);
   --danger-foreground: oklch(99.11% 0 0);
-  --default: oklch(27.40% 0.0015 312.08);
+  --default:oklch(20.463% 0.00002 271.152)
   --default-foreground: oklch(99.11% 0 0);
   --field-background: oklch(21.03% 0.0030 312.08);
   --field-border: transparent;
@@ -94,13 +94,13 @@
   --warning: oklch(82.03% 0.1392 83.33);
   --warning-foreground: oklch(21.03% 0.0059 83.33);
 
-  --process-user: #60a5fa;
-  --process-system: #c084fc;
-  --process-local-service: #4ade80;
-  --process-network-service: #fbbf24;
+   --process-user: #2563eb;
+  --process-system: #7e22ce;
+  --process-local-service: #15803d;
+  --process-network-service: #b45309;
 
-  --process-cpu: #fb923c;
-  --process-ram: #22d3ee;
+  --process-cpu: #c2410c;
+  --process-ram: #0e7490;
 
   --pattern-color: oklch(70% 0.1351 312.08 / 20%);
 

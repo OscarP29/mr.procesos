@@ -23,4 +23,5 @@ export interface RoundRobinProcess {
 export interface RoundRobinConfig {
   quantum: number
   delay: number
+  outputDir?: string
 }

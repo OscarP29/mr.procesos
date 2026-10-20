@@ -15,10 +15,15 @@ export function useRoundRobin() {
     })
   }, [])
 
-  const start = async (list: RoundRobinProcess[], quantum: number, delay: number) => {
+  const start = async (
+    list: RoundRobinProcess[],
+    quantum: number,
+    delay: number,
+    outputDir?: string
+  ) => {
     try {
       setError(null)
-      await window.api.roundRobin.start({ processes: list, quantum, delay })
+      await window.api.roundRobin.start({ processes: list, quantum, delay, outputDir })
     } catch (e) {
       setError((e as Error).message)
     }

@@ -1,7 +1,8 @@
-import { ProcessResponse } from '@/types/process'
+import { ProcessResponse } from '@/types/types-api'
 import { Table } from '@heroui/react'
+import { memo } from 'react'
 
-export default function TableProcess({ processList }: { processList: ProcessResponse }) {
+function TableProcess({ processList }: { processList: ProcessResponse }) {
   return (
     <Table>
       <Table.ScrollContainer>
@@ -19,13 +20,13 @@ export default function TableProcess({ processList }: { processList: ProcessResp
             {processList.processList.map((process) => (
               <Table.Row key={process.pid}>
                 <Table.Cell>{process.pid}</Table.Cell>
-                <Table.Cell>{process.nombre}</Table.Cell>
-                <Table.Cell>{process.descripcion}</Table.Cell>
+                <Table.Cell>{process.name}</Table.Cell>
+                <Table.Cell>{process.description}</Table.Cell>
                 <Table.Cell>
                   <span
-                    className={`${process.usuario === 'NT AUTHORITY\\SYSTEM' ? 'bg-process-system  ' : 'bg-process-user'} text-accent-foreground px-2 py-1 `}
+                    className={`${process.user === 'NT AUTHORITY\\SYSTEM' ? 'bg-process-system  ' : 'bg-process-user'} text-accent-foreground px-2 py-1 `}
                   >
-                    {process.usuario}
+                    {process.user}
                   </span>
                 </Table.Cell>
                 <Table.Cell>
@@ -35,10 +36,10 @@ export default function TableProcess({ processList }: { processList: ProcessResp
                 </Table.Cell>
                 <Table.Cell>
                   <span className="text-accent-foreground font-bold px-2 py-1 bg-process-ram">
-                    {process.memoria_mb}
+                    {process.memory_mb}
                   </span>
                 </Table.Cell>
-                <Table.Cell>{process.prioridad}</Table.Cell>
+                <Table.Cell>{process.preemption}</Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
@@ -47,3 +48,5 @@ export default function TableProcess({ processList }: { processList: ProcessResp
     </Table>
   )
 }
+
+export default memo(TableProcess)

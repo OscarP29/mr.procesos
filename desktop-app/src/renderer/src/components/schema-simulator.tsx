@@ -1,7 +1,16 @@
+import ProcessProgress from '@/components/process-progress'
 import { RoundRobinProcess } from '@/types/types-round-robin'
 import { Card } from '@heroui/react'
 import { CpuAi } from 'lucide-react'
-function SectionsProcess({ title, items }: { title: string; items: RoundRobinProcess[] }) {
+
+type SectionsProps = {
+  title: string
+  items: RoundRobinProcess[]
+  quantum: number
+  delay: number
+}
+
+function SectionsProcess({ title, items, quantum, delay }: SectionsProps) {
   return (
     <div>
       <h1 className="text-xl font-bold mb-2">{title}</h1>
@@ -17,9 +26,12 @@ function SectionsProcess({ title, items }: { title: string; items: RoundRobinPro
             <Card.Content>
               <span>Pid: {process.pid}</span>
               <span>
-                Quantium: {process.description.length}/{process.progress}
+                Quantium: {process.progress}/{process.total}
               </span>
               <span>Ejecuciones: {process.executions}</span>
+              {process.state === 'running' && (
+                <ProcessProgress process={process} quantum={quantum} delay={delay} />
+              )}
             </Card.Content>
           </Card>
         ))}
@@ -27,13 +39,30 @@ function SectionsProcess({ title, items }: { title: string; items: RoundRobinPro
     </div>
   )
 }
-export default function SchemaSimulator({ processes }: { processes: RoundRobinProcess[] }) {
+
+type Props = {
+  processes: RoundRobinProcess[]
+  quantum: number
+  delay: number
+}
+
+export default function SchemaSimulator({ processes, quantum, delay }: Props) {
   const sortBy = (s: string) => processes.filter((p) => p.state === s)
   return (
     <div className="grid gap-y-2">
-      <SectionsProcess title="Listos" items={sortBy('ready')} />
-      <SectionsProcess title="Ejecutando" items={sortBy('running')} />
-      <SectionsProcess title="Finalizados" items={sortBy('finished')} />
+      <SectionsProcess title="Listos" items={sortBy('ready')} quantum={quantum} delay={delay} />
+      <SectionsProcess
+        title="Ejecutando"
+        items={sortBy('running')}
+        quantum={quantum}
+        delay={delay}
+      />
+      <SectionsProcess
+        title="Finalizados"
+        items={sortBy('finished')}
+        quantum={quantum}
+        delay={delay}
+      />
     </div>
   )
 }
