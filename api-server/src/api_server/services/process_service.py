@@ -16,7 +16,7 @@ class ProcessService:
     ):
         process_list = []
         for process in psutil.process_iter(
-            ["pid", "name", "username", "exe", "cpu_percent", "memory_info"], ad_value=None
+            ["pid", "name", "username", "cpu_percent", "memory_info"], ad_value=None
         ):
             info = process.info
             username = info.get("username")
@@ -44,7 +44,6 @@ class ProcessService:
                 "cpu": cpu,
                 "memory_mb": memory_mb,
                 "preemption": preemption.value,
-                "exe": info.get("exe"),
             })
 
         sort_field = {"cpu": "cpu", "memory": "memory_mb"}.get(sort_by)
@@ -58,7 +57,7 @@ class ProcessService:
         process_list = process_list[:limit]
         for item in process_list:
             item["description"] = FileService.get_description(
-                item.pop("exe"), item["name"] or "unknown"
+                None, item["name"] or "unknown"
             )
 
         return {
