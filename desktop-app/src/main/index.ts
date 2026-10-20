@@ -13,6 +13,7 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
+    icon: join(__dirname, '../../resources/icon.png'),
     title: 'Mr Procesos',
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {

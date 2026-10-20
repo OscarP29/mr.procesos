@@ -1,4 +1,17 @@
-# Proyecto de software
+<div align="center">
+  <img src="desktop-app/resources/icon.png"/>
+</div>
+<p align="center">
+  <img src="https://img.shields.io/badge/React-693585?style=for-the-badge&logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/Electron-693585?style=for-the-badge&logo=electron&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-693585?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Python-693585?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/FastAPI-693585?style=for-the-badge&logo=fastapi&logoColor=white" />
+</p>
+
+# Mr.PROCESOS
+
+Mr. Procesos es una aplicación de escritorio desarrollada con Electron, React, TypeScript, Python y FastAPI, diseñada para la gestión, visualización y simulación de procesos del sistema operativo. Permite consultar información de los procesos en ejecución, analizar su consumo de recursos y simular algoritmos de planificación de CPU, como Round Robin, mediante representaciones gráficas y resultados detallados. Su objetivo es facilitar el aprendizaje y la comprensión del funcionamiento de los sistemas operativos a través de una interfaz intuitiva e interactiva.
 
 Este repositorio contiene dos proyectos:
 
