@@ -125,3 +125,71 @@
   );
   background-size: 20px 20px;
 }
+
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+  30% {
+    transform: scale(1.07);
+    box-shadow: 0 0 0 6px var(--pattern-color);
+  }
+  45% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.animate-heartbeat {
+  animation-name: heartbeat;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  will-change: transform, box-shadow;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-heartbeat {
+    animation: none;
+  }
+}
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #693585;
+  border: none;
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #693585;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox */
+* {
+  scrollbar-color: #693585 transparent;
+  scrollbar-width: thin;
+}
+
+::selection {
+  background-color: #693585;
+  color: white;
+}
+
+::-moz-selection {
+  background-color: #693585;
+  color: white;
+}

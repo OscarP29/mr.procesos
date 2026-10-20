@@ -14,10 +14,13 @@ export async function getHelloMom(): Promise<string> {
   return response.data
 }
 
-export async function getProcess(limit: number = 10): Promise<ProcessResponse> {
+export async function getProcess(
+  limit: number = 10,
+  filter: string = 'cpu'
+): Promise<ProcessResponse> {
   const { apiUrl } = useAppStore.getState()
   const response = await axios.get<ProcessResponse>(`${apiUrl}/process`, {
-    params: { limit }
+    params: { limit, sort_by: filter }
   })
 
   return response.data

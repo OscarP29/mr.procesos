@@ -15,34 +15,38 @@ export default function SectionsProcess({ title, items, quantum, delay }: Sectio
     <div>
       <h1 className="text-xl font-bold mb-2">{title}</h1>
       <Card className="grid grid-cols-5 gap-4">
-        {items.map((process) => (
-          <Card
-            className={`w-50 ${process.preemption === 1 ? 'bg-accent text-white' : ''}`}
-            variant="secondary"
-            key={process.pid}
-          >
-            <Card.Header>
-              <Card.Title
-                className={`${process.preemption === 1 ? 'text-white ' : ''} flex gap-2 capitalize`}
-              >
-                <CpuAi color={`${process.preemption === 1 ? 'white' : ''}`} />
-                {process.name}
-              </Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <span>
-                Pid: <b>{process.pid}</b>
-              </span>
-              <span>
-                Quantium: {process.progress}/{process.total}
-              </span>
-              <span>Ejecuciones: {process.executions}</span>
-              {process.state === 'running' && (
-                <ProcessProgress process={process} quantum={quantum} delay={delay} />
-              )}
-            </Card.Content>
-          </Card>
-        ))}
+        {items.map((process) => {
+          const isRunning = process.state === 'running'
+          const heartbeatDuration = Number.isFinite(delay) && delay > 0 ? delay : 1000
+
+          return (
+            <Card
+              className={`w-50 ${isRunning ? 'animate-heartbeat' : ''} ${process.preemption === 1 ? 'bg-accent text-white' : ''}`}
+              style={isRunning ? { animationDuration: `${heartbeatDuration}ms` } : undefined}
+              variant="secondary"
+              key={process.pid}
+            >
+              <Card.Header>
+                <Card.Title
+                  className={`${process.preemption === 1 ? 'text-white ' : ''} flex gap-2 capitalize`}
+                >
+                  <CpuAi color={`${process.preemption === 1 ? 'white' : ''}`} />
+                  {process.name}
+                </Card.Title>
+              </Card.Header>
+              <Card.Content>
+                <span>
+                  Pid: <b>{process.pid}</b>
+                </span>
+                <span>
+                  Quantium: {process.progress}/{process.total}
+                </span>
+                <span>Ejecuciones: {process.executions}</span>
+                {isRunning && <ProcessProgress process={process} quantum={quantum} delay={delay} />}
+              </Card.Content>
+            </Card>
+          )
+        })}
       </Card>
     </div>
   )
