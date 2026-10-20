@@ -5,7 +5,7 @@ type Theme = 'light' | 'dark'
 
 interface AppStore {
   directory: string | undefined
-  apiURl: string
+  apiUrl: string
   theme: Theme
 
   setDirectory: (directory: string | undefined) => void
@@ -18,7 +18,7 @@ export const useAppStore = create<AppStore>()(
     (set) => ({
       directory: undefined,
       theme: 'light',
-      apiURl: 'http://localhost:8000',
+      apiUrl: 'http://localhost:8000',
 
       setDirectory: (directory) => set({ directory }),
 
@@ -26,7 +26,7 @@ export const useAppStore = create<AppStore>()(
         document.documentElement.dataset.theme = theme
         set({ theme })
       },
-      setApiUrl: (apiURl) => set({ apiURl })
+      setApiUrl: (apiUrl) => set({ apiUrl })
     }),
     {
       name: 'app-settings',

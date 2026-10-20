@@ -16,7 +16,7 @@ class ProcessService:
     ):
         process_list = []
         for process in psutil.process_iter(
-            ["pid", "name", "username", "cpu_percent", "memory_info"], ad_value=None
+            ["pid", "name", "username", "cpu_percent", "memory_info", "exe"], ad_value=None
         ):
             info = process.info
             username = info.get("username")
@@ -57,7 +57,7 @@ class ProcessService:
         process_list = process_list[:limit]
         for item in process_list:
             item["description"] = FileService.get_description(
-                None, item["name"] or "unknown"
+                info["exe"], item["name"] or "unknown"
             )
 
         return {

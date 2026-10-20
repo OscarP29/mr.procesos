@@ -14,6 +14,10 @@ export interface RoundRobinProcess {
   total: number
   executions: number
   output: string
+  arrivalTime: number
+  burst: number
+  finishTime: number | null
+  turnaround: number | null
 }
 
 export interface RoundRobinConfig {

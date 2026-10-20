@@ -20,7 +20,7 @@ const themes = [
 ] as const
 
 export default function PageSettings() {
-  const { theme, directory, setTheme, setDirectory, apiURl, setApiUrl } = useAppStore()
+  const { theme, directory, setTheme, setDirectory, apiUrl, setApiUrl } = useAppStore()
   const [hello, setHello] = useState<{ loading: boolean; hello: string }>({
     loading: false,
     hello: ''
@@ -109,8 +109,8 @@ export default function PageSettings() {
 
               <Input
                 fullWidth
-                placeholder="http//localhost:4000"
-                value={apiURl}
+                placeholder="http://localhost:8000"
+                value={apiUrl}
                 onChange={(e) => setApiUrl(e.target.value)}
               />
               <Button size="sm" isPending={hello.loading} onPress={handleHello}>
