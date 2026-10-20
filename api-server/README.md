@@ -91,42 +91,24 @@ como `1`; en cualquier otro caso se marca como `0`.
 
 ---
 
-## Endpoints de catálogos
-
-Permiten guardar conjuntos de procesos y administrarlos. Un catálogo tiene un
-nombre elegido por el usuario y los procesos que le pertenecen.
-
-| Método | Ruta | DTO de entrada | DTO de salida | Código |
-| --- | --- | --- | --- | --- |
-| `POST` | `/catalogs/` | `CatalogCreate` | `CatalogDetail` | `201` |
-| `GET` | `/catalogs/` | — | `list[CatalogSummary]` | `200` |
-| `GET` | `/catalogs/{catalog_id}/` | — | `CatalogDetail` | `200` |
-| `DELETE` | `/catalogs/{catalog_id}/` | — | `CatalogDetail` | `200` |
-| `DELETE` | `/catalogs/{catalog_id}/processes/{pid}/` | — | `ProcessResponse` | `200` |
-
-Los catálogos se identifican por su `id`, no por su nombre. El nombre es único y
-sirve como etiqueta.
-
 ## Filtrado y ordenamiento por CPU/RAM
 
 `GET /process/` permite filtrar y ordenar los procesos por consumo de CPU o
 memoria. Todos los parámetros son opcionales:
 
-| Parámetro | Valores | Predeterminado | Descripción |
-| --- | --- | --- | --- |
-| `limit` | De `1` a `500` | `10` | Cantidad máxima de procesos devueltos. |
-| `sort_by` | `cpu` o `memory` | Sin ordenar | Campo usado para ordenar. `memory` corresponde a `memory_mb`. |
-| `order` | `asc` o `desc` | `desc` | Dirección del orden, aplicada cuando se especifica `sort_by`. |
-| `min_cpu` | De `0` a `100` | Sin mínimo | Porcentaje mínimo de CPU; incluye procesos con ese valor o superior. |
-| `min_memory_mb` | Mayor o igual a `0` | Sin mínimo | Memoria mínima en MB; incluye procesos con ese valor o superior. |
+| Parámetro       | Valores             | Predeterminado | Descripción                                                          |
+| --------------- | ------------------- | -------------- | -------------------------------------------------------------------- |
+| `limit`         | De `1` a `500`      | `10`           | Cantidad máxima de procesos devueltos.                               |
+| `sort_by`       | `cpu` o `memory`    | Sin ordenar    | Campo usado para ordenar. `memory` corresponde a `memory_mb`.        |
+| `order`         | `asc` o `desc`      | `desc`         | Dirección del orden, aplicada cuando se especifica `sort_by`.        |
+| `min_cpu`       | De `0` a `100`      | Sin mínimo     | Porcentaje mínimo de CPU; incluye procesos con ese valor o superior. |
+| `min_memory_mb` | Mayor o igual a `0` | Sin mínimo     | Memoria mínima en MB; incluye procesos con ese valor o superior.     |
 
 Ejemplos:
-
 
 http://127.0.0.1:8000/process/?sort_by=cpu&order=desc&limit=10
 http://127.0.0.1:8000/process/?sort_by=memory&order=desc&min_memory_mb=100&limit=20
 http://127.0.0.1:8000/process/?min_cpu=5&min_memory_mb=50
-
 
 Los filtros se aplican antes del ordenamiento y del límite. Los procesos sin
 una medición de memoria no coinciden con `min_memory_mb`; al ordenar por
@@ -134,9 +116,25 @@ memoria, esos valores quedan al final. Si no se envía `sort_by`, no se aplica
 ordenamiento. `total` indica cuántos procesos se devolvieron tras aplicar los
 filtros y `limit`. Los valores fuera de los rangos permitidos devuelven `422`.
 
+## Endpoints de catálogos
+
+Permiten guardar conjuntos de procesos y administrarlos. Un catálogo tiene un
+nombre elegido por el usuario y los procesos que le pertenecen.
+
+| Método   | Ruta                                      | DTO de entrada  | DTO de salida          | Código |
+| -------- | ----------------------------------------- | --------------- | ---------------------- | ------ |
+| `POST`   | `/catalogs/`                              | `CatalogCreate` | `CatalogDetail`        | `201`  |
+| `GET`    | `/catalogs/`                              | —               | `list[CatalogSummary]` | `200`  |
+| `GET`    | `/catalogs/{catalog_id}/`                 | —               | `CatalogDetail`        | `200`  |
+| `DELETE` | `/catalogs/{catalog_id}/`                 | —               | `CatalogDetail`        | `200`  |
+| `DELETE` | `/catalogs/{catalog_id}/processes/{pid}/` | —               | `ProcessResponse`      | `200`  |
+
+Los catálogos se identifican por su `id`, no por su nombre. El nombre es único y
+sirve como etiqueta.
+
 ### Los DTO
 
-Un DTO (*Data Transfer Object*) es la forma que tiene la información de entrar y
+Un DTO (_Data Transfer Object_) es la forma que tiene la información de entrar y
 salir por la API. Son distintos de las tablas de la base de datos: las tablas
 definen cómo se guarda el dato, los DTOs definen qué ve el cliente. Por eso los
 DTOs de entrada y de salida están separados.
@@ -148,21 +146,21 @@ validación. Los de salida solo declaran los campos.
 
 `ProcessCreate`, dentro de `CatalogCreate.processes`:
 
-| Campo | Tipo | Regla |
-| --- | --- | --- |
-| `pid` | `int` | obligatorio |
-| `name` | `str` | de 1 a 120 caracteres |
-| `user` | `str` | de 1 a 120 caracteres |
-| `description` | `str` | mínimo 1 carácter |
-| `preemption` | `int` | solo `0` o `1` |
-| `cpu` | `float` | obligatorio |
-| `memory_mb` | `float \| null` | opcional |
+| Campo         | Tipo            | Regla                 |
+| ------------- | --------------- | --------------------- |
+| `pid`         | `int`           | obligatorio           |
+| `name`        | `str`           | de 1 a 120 caracteres |
+| `user`        | `str`           | de 1 a 120 caracteres |
+| `description` | `str`           | mínimo 1 carácter     |
+| `preemption`  | `int`           | solo `0` o `1`        |
+| `cpu`         | `float`         | obligatorio           |
+| `memory_mb`   | `float \| null` | opcional              |
 
 `CatalogCreate`, el cuerpo del `POST`:
 
-| Campo | Tipo | Regla |
-| --- | --- | --- |
-| `name` | `str` | de 1 a 100 caracteres |
+| Campo       | Tipo                  | Regla                             |
+| ----------- | --------------------- | --------------------------------- |
+| `name`      | `str`                 | de 1 a 100 caracteres             |
 | `processes` | `list[ProcessCreate]` | opcional, por defecto lista vacía |
 
 Como `processes` es opcional, se puede crear un catálogo sin procesos.
@@ -172,36 +170,36 @@ Como `processes` es opcional, se puede crear un catálogo sin procesos.
 `ProcessResponse`: igual que `ProcessCreate` más los dos campos que solo existen
 ya guardado en la base de datos.
 
-| Campo | Tipo | Nota |
-| --- | --- | --- |
-| `id` | `int` | identificador interno de la fila |
-| `catalog_id` | `int` | catálogo al que pertenece |
-| `pid` | `int` | |
-| `name` | `str` | |
-| `user` | `str` | |
-| `description` | `str` | |
-| `preemption` | `int` | `0` expulsivo, `1` no expulsivo |
-| `cpu` | `float` | |
-| `memory_mb` | `float \| null` | |
+| Campo         | Tipo            | Nota                             |
+| ------------- | --------------- | -------------------------------- |
+| `id`          | `int`           | identificador interno de la fila |
+| `catalog_id`  | `int`           | catálogo al que pertenece        |
+| `pid`         | `int`           |                                  |
+| `name`        | `str`           |                                  |
+| `user`        | `str`           |                                  |
+| `description` | `str`           |                                  |
+| `preemption`  | `int`           | `0` expulsivo, `1` no expulsivo  |
+| `cpu`         | `float`         |                                  |
+| `memory_mb`   | `float \| null` |                                  |
 
 `CatalogSummary`, el listado:
 
-| Campo | Tipo |
-| --- | --- |
-| `id` | `int` |
-| `name` | `str` |
+| Campo           | Tipo  |
+| --------------- | ----- |
+| `id`            | `int` |
+| `name`          | `str` |
 | `process_count` | `int` |
 
 No incluye los procesos: el listado solo los cuenta.
 
 `CatalogDetail`, el catálogo con sus procesos:
 
-| Campo | Tipo |
-| --- | --- |
-| `id` | `int` |
-| `name` | `str` |
-| `created_at` | `datetime` |
-| `processes` | `list[ProcessResponse]` |
+| Campo        | Tipo                    |
+| ------------ | ----------------------- |
+| `id`         | `int`                   |
+| `name`       | `str`                   |
+| `created_at` | `datetime`              |
+| `processes`  | `list[ProcessResponse]` |
 
 El `POST` y el `GET` por id devuelven esta misma forma, para que el cliente no
 necesite un tipo distinto para el mismo concepto.
@@ -283,7 +281,9 @@ Salida (`200`): la misma forma de `CatalogDetail` que devuelve el `POST`.
   "id": 1,
   "name": "catalogo_prueba",
   "created_at": "2026-10-17T20:07:15.250504",
-  "processes": [ /* ... */ ]
+  "processes": [
+    /* ... */
+  ]
 }
 ```
 
@@ -296,7 +296,9 @@ Salida (`200`): el catálogo que se borró, con sus procesos.
   "id": 1,
   "name": "catalogo_prueba",
   "created_at": "2026-10-17T20:07:15.250504",
-  "processes": [ /* ... */ ]
+  "processes": [
+    /* ... */
+  ]
 }
 ```
 
@@ -326,12 +328,12 @@ incluye el `catalog_id`, así que cada catálogo es independiente.
 
 ### Errores
 
-| Código | Cuándo | Cuerpo |
-| --- | --- | --- |
-| `409 Conflict` | El nombre del catálogo ya existe | `{ "detail": "El catálogo 'X' ya existe" }` |
-| `404 Not Found` | No existe el catálogo con ese id | `{ "detail": "El catálogo con id 999 no existe" }` |
-| `404 Not Found` | No existe ese pid dentro del catálogo | `{ "detail": "El proceso con pid 100 no existe en el catálogo con id 1" }` |
-| `422 Unprocessable Entity` | El JSON no cumple las reglas del DTO | detalle de Pydantic |
+| Código                     | Cuándo                                | Cuerpo                                                                     |
+| -------------------------- | ------------------------------------- | -------------------------------------------------------------------------- |
+| `409 Conflict`             | El nombre del catálogo ya existe      | `{ "detail": "El catálogo 'X' ya existe" }`                                |
+| `404 Not Found`            | No existe el catálogo con ese id      | `{ "detail": "El catálogo con id 999 no existe" }`                         |
+| `404 Not Found`            | No existe ese pid dentro del catálogo | `{ "detail": "El proceso con pid 100 no existe en el catálogo con id 1" }` |
+| `422 Unprocessable Entity` | El JSON no cumple las reglas del DTO  | detalle de Pydantic                                                        |
 
 El `422` lo genera Pydantic automáticamente, sin código propio: por ejemplo,
 mandar `preemption` con un valor distinto de `0` o `1` lo rechaza.
@@ -363,18 +365,17 @@ src/api_server/models/
 
 ### Esquema
 
-| Tabla | Columna | Tipo | Descripción |
-| --- | --- | --- | --- |
-| `catalogs` | `id` | `INTEGER` PK AI | Identificador interno del catálogo. |
-| | `name` | `VARCHAR(100)` UNIQUE | Nombre que define el usuario. No se repiten. |
-| | `created_at` | `DATETIME` | Fecha de creación. |
-| `processes` | `id` | `INTEGER` PK AI | Identificador interno de la fila. No es el PID. |
-| | `catalog_id` | `INTEGER` FK | Catálogo al que pertenece. `ON DELETE CASCADE`: al borrar el catálogo se borran sus procesos. |
-| | `pid` | `INTEGER` | PID real del proceso en el sistema operativo. |
-| | `name` | `VARCHAR(120)` | Nombre del proceso. |
-| | `user` | `VARCHAR(120)` | Cuenta propietaria del proceso. |
-| | `description` | `TEXT` | Descripción del proceso. Su longitud en caracteres se usa para calcular la ráfaga (`TR = TH * caracteres`). |
-| | `preemption` | `INTEGER` | `0` expulsivo, `1` no expulsivo. `CHECK (preemption IN (0, 1))`. |
-| | `cpu` | `FLOAT` | Porcentaje de CPU en el momento del catálogo. |
-| | `memory_mb` | `FLOAT` | Memoria en megabytes. |
-
+| Tabla       | Columna       | Tipo                  | Descripción                                                                                                 |
+| ----------- | ------------- | --------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `catalogs`  | `id`          | `INTEGER` PK AI       | Identificador interno del catálogo.                                                                         |
+|             | `name`        | `VARCHAR(100)` UNIQUE | Nombre que define el usuario. No se repiten.                                                                |
+|             | `created_at`  | `DATETIME`            | Fecha de creación.                                                                                          |
+| `processes` | `id`          | `INTEGER` PK AI       | Identificador interno de la fila. No es el PID.                                                             |
+|             | `catalog_id`  | `INTEGER` FK          | Catálogo al que pertenece. `ON DELETE CASCADE`: al borrar el catálogo se borran sus procesos.               |
+|             | `pid`         | `INTEGER`             | PID real del proceso en el sistema operativo.                                                               |
+|             | `name`        | `VARCHAR(120)`        | Nombre del proceso.                                                                                         |
+|             | `user`        | `VARCHAR(120)`        | Cuenta propietaria del proceso.                                                                             |
+|             | `description` | `TEXT`                | Descripción del proceso. Su longitud en caracteres se usa para calcular la ráfaga (`TR = TH * caracteres`). |
+|             | `preemption`  | `INTEGER`             | `0` expulsivo, `1` no expulsivo. `CHECK (preemption IN (0, 1))`.                                            |
+|             | `cpu`         | `FLOAT`               | Porcentaje de CPU en el momento del catálogo.                                                               |
+|             | `memory_mb`   | `FLOAT`               | Memoria en megabytes.                                                                                       |

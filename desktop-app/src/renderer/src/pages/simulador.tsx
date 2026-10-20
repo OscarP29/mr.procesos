@@ -1,7 +1,10 @@
 import { getCategories, getCategory } from '@/api/api'
+import { Chart } from '@/components/Chart'
 import Controls from '@/components/controls'
 import EmplyState from '@/components/emply-state'
 import Header from '@/components/header'
+import ProcessLegend from '@/components/process-legend'
+import { Results } from '@/components/results'
 import SchemaSimulator from '@/components/schema-simulator'
 import TableProcess from '@/components/table-process'
 import TooltipInfo from '@/components/tooltip'
@@ -44,6 +47,7 @@ export default function Simulator() {
   const handlerLoad = async () => {
     if (selectedId === null) return
 
+    reset()
     setLoading(true)
     try {
       const category = await getCategory(selectedId)
@@ -78,7 +82,11 @@ export default function Simulator() {
             progress: 0,
             total: process.description.length,
             executions: 0,
-            output: ''
+            output: '',
+            arrivalTime: 0,
+            burst: 0,
+            finishTime: null,
+            turnaround: null
           })),
     [categoryProcess]
   )
@@ -139,6 +147,7 @@ export default function Simulator() {
             <Input
               type="tel"
               placeholder="Procesos"
+              min={100}
               value={config.delay}
               onChange={(e) => setConfig((state) => ({ ...state, delay: Number(e.target.value) }))}
             />
@@ -153,6 +162,7 @@ export default function Simulator() {
             <Input
               type="tel"
               placeholder="1"
+              min={1}
               value={config.quantum}
               onChange={(e) =>
                 setConfig((state) => ({ ...state, quantum: Number(e.target.value) }))
@@ -171,7 +181,7 @@ export default function Simulator() {
               </>
             )}
           </Button>
-          {/* <ModalSave /> */}
+          <ProcessLegend />
         </div>
         <Controls
           disable={roundRobinProcess.length === 0}
@@ -184,7 +194,11 @@ export default function Simulator() {
       </div>
       <div className="mt-4">
         {processes.length > 0 ? (
-          <SchemaSimulator processes={processes} quantum={activeQuantum} delay={activeDelay} />
+          <>
+            <SchemaSimulator processes={processes} quantum={activeQuantum} delay={activeDelay} />
+            <Results processes={processes} />
+            <Chart processes={processes} />
+          </>
         ) : categoryProcess !== null ? (
           <TableProcess processList={categoryProcess} />
         ) : (

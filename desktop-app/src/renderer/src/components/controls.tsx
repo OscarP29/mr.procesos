@@ -1,5 +1,5 @@
 import { Button } from '@heroui/react'
-import { Pause, Play, Undo } from 'lucide-react'
+import { Pause, Play, RotateCcw } from 'lucide-react'
 
 type Props = {
   status: 'idle' | 'running' | 'paused' | 'finished'
@@ -35,7 +35,7 @@ export default function Controls({
       </Button>
 
       <Button isIconOnly variant="secondary" onClick={onReset} isDisabled={status === 'idle'}>
-        <Undo />
+        <RotateCcw />
       </Button>
     </div>
   )

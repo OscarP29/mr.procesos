@@ -80,7 +80,7 @@ export class RoundRobinService {
           workerData: {
             pid: p.pid,
             description: p.description,
-            filePath: join(this.dir, `${p.pid}.txt`)
+            filePath: join(this.dir, `${p.pid}-${p.name}.txt`)
           }
         })
       )

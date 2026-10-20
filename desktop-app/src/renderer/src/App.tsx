@@ -4,6 +4,7 @@ import { Settings, Cpu, Atom } from 'lucide-react'
 import ProcessPage from './pages/process'
 import Simulator from './pages/simulador'
 import PageSettings from './pages/settings'
+import image from '../../../resources/icon.png'
 
 const listClassName = [
   'rounded-xl border border-accent/10 bg-accent-soft/30 p-1',
@@ -29,7 +30,7 @@ export default function App() {
   return (
     <div className="w-screen h-screen overflow-hidden bg-background text-foreground">
       <Tabs className="w-full h-full flex flex-row" orientation="vertical">
-        <Tabs.ListContainer className="h-full p-2 min-w-50">
+        <Tabs.ListContainer className="h-full p-2 min-w-50 relative">
           <Tabs.List aria-label="Options" className={`flex flex-col gap-1 ${listClassName}`}>
             <Tabs.Tab id="overview" className="flex gap-2 py-2 px-3 justify-start items-center">
               <Cpu className="w-5 h-5" />
@@ -47,6 +48,10 @@ export default function App() {
               <Tabs.Indicator />
             </Tabs.Tab>
           </Tabs.List>
+          <div className="mt-auto flex justify-center p-4 absolute bottom-4 left-8 flex-col items-center">
+            <img src={image} alt="Mr Procesos" className="w-24 h-24 object-contain" />
+            <span className="font-bold text-sm opacity-70">v1.0.0</span>
+          </div>
         </Tabs.ListContainer>
 
         {/* Panel principal que toma el espacio restante */}

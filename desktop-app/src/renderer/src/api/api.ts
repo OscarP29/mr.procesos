@@ -8,29 +8,34 @@ import {
   ProcessResponse
 } from '@/types/types-api'
 
-const { apiURl } = useAppStore.getState()
-
 export async function getHelloMom(): Promise<string> {
-  const response = await axios.get<string>(`${apiURl}/`)
+  const { apiUrl } = useAppStore.getState()
+  const response = await axios.get<string>(`${apiUrl}/`)
   return response.data
 }
 
-export async function getProcess(limit: number = 10): Promise<ProcessResponse> {
-  const response = await axios.get<ProcessResponse>(`${apiURl}/process`, {
-    params: { limit }
+export async function getProcess(
+  limit: number = 10,
+  filter: string = 'cpu'
+): Promise<ProcessResponse> {
+  const { apiUrl } = useAppStore.getState()
+  const response = await axios.get<ProcessResponse>(`${apiUrl}/process`, {
+    params: { limit, sort_by: filter }
   })
 
   return response.data
 }
 
 export async function getCategories(): Promise<CategorySummary[]> {
-  const response = await axios.get<CategorySummary[]>(`${apiURl}/catalogs`)
+  const { apiUrl } = useAppStore.getState()
+  const response = await axios.get<CategorySummary[]>(`${apiUrl}/catalogs`)
 
   return response.data
 }
 
 export async function getCategory(id: number): Promise<CategoryDetail> {
-  const response = await axios.get<CategoryDetail>(`${apiURl}/catalogs/${id}`)
+  const { apiUrl } = useAppStore.getState()
+  const response = await axios.get<CategoryDetail>(`${apiUrl}/catalogs/${id}`)
 
   return response.data
 }
@@ -39,8 +44,9 @@ export async function saveCategory(
   name: string,
   processes: Process[]
 ): Promise<'success' | 'conflict'> {
+  const { apiUrl } = useAppStore.getState()
   try {
-    await axios.post<CategoryResponse>(`${apiURl}/catalogs`, {
+    await axios.post<CategoryResponse>(`${apiUrl}/catalogs`, {
       name,
       processes
     })

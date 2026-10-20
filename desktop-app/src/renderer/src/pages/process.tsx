@@ -18,7 +18,7 @@ export default function ProcessPage() {
   const handlerProcess = async () => {
     setLoading(true)
     try {
-      const response = await getProcess(limit)
+      const response = await getProcess(limit, filter)
 
       response.processList = response.processList.map((process) => ({
         ...process,
@@ -65,11 +65,11 @@ export default function ProcessPage() {
             </ComboBox.InputGroup>
             <ComboBox.Popover>
               <ListBox>
-                <ListBox.Item id="aardvark" textValue="Cpu" value="cpu">
+                <ListBox.Item id="aardvark" textValue="cpu" value="cpu">
                   Cpu
                   <ListBox.ItemIndicator />
                 </ListBox.Item>
-                <ListBox.Item id="cat" textValue="Memoria" value="mem">
+                <ListBox.Item id="cat" textValue="memory" value="memory">
                   Memoria
                   <ListBox.ItemIndicator />
                 </ListBox.Item>
