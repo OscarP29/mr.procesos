@@ -1,5 +1,5 @@
 import { getCategories, getCategory } from '@/api/api'
-import { Chart } from '@/components/Chart'
+import { Chart } from '@/components/chart'
 import Controls from '@/components/controls'
 import EmplyState from '@/components/emply-state'
 import Header from '@/components/header'

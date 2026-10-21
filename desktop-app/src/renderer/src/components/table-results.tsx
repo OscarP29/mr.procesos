@@ -10,12 +10,12 @@ export default function ResultTable({ title, rows }: { title: string; rows: Roun
         <Table.ScrollContainer>
           <Table.Content>
             <Table.Header>
-              <Table.Column isRowHeader>P</Table.Column>
-              <Table.Column>T.L.</Table.Column>
-              <Table.Column>R</Table.Column>
-              <Table.Column>P.R.</Table.Column>
-              <Table.Column>T.R.</Table.Column>
-              <Table.Column>T.F.</Table.Column>
+              <Table.Column isRowHeader>Nombre Proceso</Table.Column>
+              <Table.Column>Tiempo Llegada</Table.Column>
+              <Table.Column>Rafaga</Table.Column>
+              <Table.Column>Prioridad Asignada</Table.Column>
+              <Table.Column>turnAround</Table.Column>
+              <Table.Column>Tiempo Finalizacion</Table.Column>
             </Table.Header>
 
             <Table.Body>

@@ -10,7 +10,7 @@ type Props = {
 export default function SchemaSimulator({ processes, quantum, delay }: Props) {
   const sortBy = (s: string) => processes.filter((p) => p.state === s)
   const ready = sortBy('ready')
-  const listos = ready.filter((p) => p.executions <= 1)
+  const listos = ready.filter((p) => p.executions === 0)
   const espera = ready.filter((p) => p.executions >= 1)
 
   return (

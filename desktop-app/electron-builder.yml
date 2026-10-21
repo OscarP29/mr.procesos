@@ -12,7 +12,12 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: desktop-app
+  executableName: 'MR Procesos'
+  target:
+    - target: nsis
+      arch:
+        - x64
+
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
