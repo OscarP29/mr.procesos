@@ -2,8 +2,6 @@ import { app, BrowserWindow } from 'electron'
 import { Worker } from 'node:worker_threads'
 import { join } from 'node:path'
 import { mkdirSync, rmSync } from 'node:fs'
-// ?modulePath hace que electron-vite compile el worker y te dé la ruta correcta
-// tanto en desarrollo como en build
 import workerPath from '../workers/process-workers?modulePath'
 import type { RoundRobinProcess, RoundRobinConfig } from '../types-round-robin'
 
@@ -118,7 +116,7 @@ export class RoundRobinService {
     this.looping = true
     try {
       while (this.status === 'running' && (this.queue.length > 0 || this.pending.length > 0)) {
-        // CPU ociosa: salta el reloj hasta la próxima llegada
+        // salta el reloj hasta la próxima llegada
         if (this.queue.length === 0) {
           const next = this.processes.find((x) => x.pid === this.pending[0])!
           this.clock = next.arrivalTime
@@ -137,19 +135,16 @@ export class RoundRobinService {
         const result = await this.runTurn(pid, chars)
         if (gen !== this.generation) return
 
-        // El proceso sigue en "running": se ve el progreso y el texto escrito
         this.update(pid, {
           progress: result.progress,
           output: p.output + result.chunk
         })
 
-        // Dura lo que le toca: caracteres * TH
         await sleep(result.chunk.length * th)
         if (gen !== this.generation) return
 
-        // Ahora sí termina el turno
         this.clock += result.chunk.length * th
-        this.admit()
+        this.admit() //LLamos al proceso que sigue
 
         this.update(pid, {
           state: result.finished ? 'finished' : 'ready',
